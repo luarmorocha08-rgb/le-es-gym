@@ -1,7 +1,8 @@
-import { ArrowLeft, ClipboardList, Plus } from "lucide-react";
+import { ArrowLeft, ClipboardList, Plus, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ReviewSuggestionForm } from "@/components/trainer/plan-controls";
 import { TrainerMessageForm, TransitionButton } from "@/components/trainer/request-controls";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +22,7 @@ export default async function TrainerRequestPage({ params }: PageProps<"/profiss
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const data = await getTrainerRequest(viewer.id, id);
   if (!data) notFound();
-  const { request: r, events, messages } = data;
+  const { request: r, events, messages, reviewPlans } = data;
   const closed = r.status === "concluido" || r.status === "cancelado";
   const canBuild = ["aguardando_profissional", "em_analise", "em_elaboracao", "ajuste_solicitado"].includes(r.status);
   const lastAdjust = [...events].reverse().find((e) => e.to_status === "ajuste_solicitado");
@@ -38,8 +39,14 @@ export default async function TrainerRequestPage({ params }: PageProps<"/profiss
           </Badge>
           <h1 className="mt-3 font-display text-5xl uppercase leading-[0.95]">{r.student_name}</h1>
           <p className="mt-2 text-white/60">
-            {GOAL_LABELS[r.goal as Goal]} · {r.days_per_week} dias/semana · {r.session_minutes} min
-            {r.experience_level && ` · ${LEVEL_LABELS[r.experience_level as Level]}`}
+            {[
+              GOAL_LABELS[r.goal as Goal],
+              r.days_per_week && `${r.days_per_week} dias/semana`,
+              r.session_minutes && `${r.session_minutes} min`,
+              r.experience_level && LEVEL_LABELS[r.experience_level as Level],
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
           {r.details && <p className="mt-3 max-w-2xl whitespace-pre-line text-sm text-white/75">“{r.details}”</p>}
         </div>
@@ -67,6 +74,43 @@ export default async function TrainerRequestPage({ params }: PageProps<"/profiss
       {r.status === "ajuste_solicitado" && lastAdjust?.note && (
         <Alert title="Ajuste solicitado pelo aluno">“{lastAdjust.note}” — crie uma nova versão da ficha entregue ou monte outra.</Alert>
       )}
+
+      {canBuild &&
+        reviewPlans.map((p) => (
+          <section key={p.id} aria-label="Treino enviado para revisão" className="rounded-2xl border border-white/20 bg-white/[0.03] p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="eyebrow flex items-center gap-2">
+                  <Sparkles className="size-3.5" aria-hidden /> {p.source === "ia" ? "Sugestão gerada por IA · enviada para revisão" : "Treino do aluno · enviado para revisão"}
+                </p>
+                <h2 className="mt-2 font-heading text-2xl uppercase tracking-[0.04em]">{p.title}</h2>
+                <p className="mt-1 text-sm text-white/55">
+                  Nada foi publicado. Revise e ajuste antes de publicar: ao criar a ficha, você gera um rascunho seu com estes exercícios.
+                </p>
+              </div>
+              <ReviewSuggestionForm planId={p.id} studentId={r.student_id} requestId={r.id} />
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {p.days.map((d) => (
+                <div key={d.id} className="rounded-xl border border-white/[0.07] p-3">
+                  <p className="text-sm font-medium">
+                    {d.label} · {d.name}
+                  </p>
+                  <ul className="mt-2 space-y-1 text-xs text-white/65">
+                    {d.exercises.map((e) => (
+                      <li key={e.id} className="flex justify-between gap-2">
+                        <span>{e.name}</span>
+                        <span className="tabular-nums text-white/45">
+                          {e.sets} × {e.reps}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
 
       {(r.drafts.length > 0 || r.plan_id) && (
         <section aria-labelledby="fichas" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">

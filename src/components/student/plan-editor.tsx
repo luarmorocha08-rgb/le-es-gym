@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, Check, GripVertical, Loader2, Plus, Search, StickyN
 import { Reorder, useDragControls } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
+import { SubstitutePanel, type SubstitutesAction } from "@/components/ai/substitute-panel";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +77,7 @@ export function PlanEditor({
   save,
   afterSaveBase,
   saveLabel = "Salvar treino",
+  substitutes,
 }: {
   plan: EditablePlan | null;
   catalog: ExerciseSummary[];
@@ -84,6 +86,8 @@ export function PlanEditor({
   /** Após salvar, navega para `${afterSaveBase}/${id}` */
   afterSaveBase: string;
   saveLabel?: string;
+  /** Sugestão de substitutos por IA (só quando a IA está configurada) */
+  substitutes?: SubstitutesAction;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(plan?.title ?? "");
@@ -324,6 +328,7 @@ export function PlanEditor({
                   onChange={(patch) => updateRow(row.key, patch)}
                   onMove={(delta) => moveRow(i, delta)}
                   onRemove={() => updateDay(active, { rows: day.rows.filter((r) => r.key !== row.key) })}
+                  substitutes={substitutes}
                 />
               ))}
             </Reorder.Group>
@@ -375,6 +380,7 @@ function ExerciseRow({
   onChange,
   onMove,
   onRemove,
+  substitutes,
 }: {
   row: Row;
   index: number;
@@ -385,6 +391,7 @@ function ExerciseRow({
   onChange: (patch: Partial<Row>) => void;
   onMove: (delta: number) => void;
   onRemove: () => void;
+  substitutes?: SubstitutesAction;
 }) {
   const controls = useDragControls();
   const e = (f: string) => errors[`${pathPrefix}.${f}`];
@@ -463,10 +470,11 @@ function ExerciseRow({
               placeholder="Ex.: cadência controlada, pegada fechada…"
             />
           ) : (
-            <button type="button" className="mt-2 inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white" onClick={() => onChange({ showNotes: true })}>
+            <button type="button" className="mt-2 mr-4 inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white" onClick={() => onChange({ showNotes: true })}>
               <StickyNote className="size-3.5" /> Adicionar observação
             </button>
           )}
+          {substitutes && exercise && <SubstitutePanel exerciseId={row.exerciseId} load={substitutes} onPick={(exerciseId) => onChange({ exerciseId })} />}
         </div>
       </div>
     </Reorder.Item>

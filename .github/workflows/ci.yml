@@ -22,6 +22,8 @@ jobs:
       BETTER_AUTH_URL: http://localhost:3200
       EMAIL_LOG_ONLY: "1"
       E2E_WITH_DB: "1"
+      # fluxos de IA contra um servidor local que imita a API (sem chave real)
+      E2E_AI_MOCK: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

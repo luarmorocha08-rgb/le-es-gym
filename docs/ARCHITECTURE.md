@@ -135,7 +135,7 @@ suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 | `/aluno/evolucao` | Frequência e volume semanais, evolução de cargas, recordes, histórico, metas, medidas corporais (com consentimento) |
 | `/aluno/solicitar-profissional` · `/[id]` | Meu Treinador: pedir treino, status em etapas, mensagens, pedir ajuste, concluir ou cancelar |
 | `/aluno/perfil` · `/exportar` | Dados e rotina, saúde (consentimento LGPD), consentimento de IA, senha, notificações, exportar JSON, excluir conta |
-| `/aluno/treino-ia` | Aviso transparente até a Etapa 6 |
+| `/aluno/treino-ia` | Assistente de IA conversacional (Etapa 6) ou "configuração pendente" sem chave |
 
 Leituras em `src/lib/student/queries.ts` e mutações em `src/app/aluno/_actions/`,
 sempre via `withUser` (RLS). Regras puras (divisões, sequência de dias,
@@ -160,19 +160,37 @@ solicitação ligada passa para "entregue".
 
 ## 6. Camada de IA (Etapa 6)
 
-- `src/lib/ai/` **server-only**; chave em `ANTHROPIC_API_KEY` (ou outro
-  provedor via `AI_PROVIDER`), modelo em `AI_MODEL`.
-- Entrada minimizada: objetivo, nível, disponibilidade, equipamentos,
-  preferências e restrições declaradas — sem nome, e-mail ou telefone.
-- Saída em JSON validada com Zod (`WorkoutPlanSuggestion`) e exercícios
-  resolvidos contra a biblioteca (`exercises.slug`); respostas inválidas são
-  descartadas e registradas como `invalido`.
-- Limite por usuário/dia (contagem em `ai_generations`) + consentimento
-  (`profiles.ai_consent_at`) antes do primeiro uso.
-- Sem chave configurada: a interface informa "configuração pendente" — nunca
-  simula uma resposta.
-- Guardrails no prompt e na validação: sem diagnóstico, sem promessa de
-  resultado; dor/lesão/condição de saúde → orientar avaliação profissional.
+| Onde | O que faz |
+| --- | --- |
+| `/aluno/treino-ia` | Conversa guiada (objetivo, experiência, dias, tempo, equipamentos, prioridades, limitações, exercícios a evitar, preferências) → sugestão → ajustes por atalhos ou texto livre, com comparação "o que mudou" → **Começar a usar**, **Salvar e editar** ou **Enviar para revisão** de um profissional |
+| `/profissional/treino-ia` | Escolhe um aluno vinculado (com consentimento dele), revisa os dados pré-preenchidos, acrescenta orientações próprias, gera e ajusta → salva **somente como rascunho** ou modelo |
+| Editores de ficha (aluno e profissional) | "Substituir com IA": até 4 alternativas da biblioteca; a troca só acontece com clique explícito |
+| `/aluno/exercicios/[slug]` | "Tirar dúvida com a IA" sobre execução, com aviso de segurança |
+| `/profissional/solicitacoes/[id]` | Sugestão enviada pelo aluno para revisão aparece após aceitar; "Revisar e criar ficha" gera um rascunho do profissional ligado à solicitação |
+
+**Implementação** (`src/lib/ai/`, server-only):
+
+- `client.ts`: SDK oficial `@anthropic-ai/sdk`, saída estruturada validada por
+  Zod (`messages.parse` + `output_config.format`), esforço configurável
+  (`AI_EFFORT`), fallback de servidor quando o modelo suporta, erros tipados
+  (chave inválida, limite do provedor, recusa, indisponibilidade).
+- `prompts.ts`: regras fixas (pt-BR, sem diagnóstico, sem promessa de
+  resultado, dor/lesão → `requires_professional_evaluation`, textos do usuário
+  tratados como dados) + catálogo de exercícios em bloco com cache.
+- `normalize.ts`: cada exercício é resolvido contra a biblioteca (`slug`);
+  inexistentes/duplicados são descartados e informados; séries, repetições e
+  descanso são limitados; e-mails, telefones e CPF são removidos dos textos.
+- `service.ts`: consentimento obrigatório do aluno (`profiles.ai_consent_at`,
+  inclusive quando o profissional gera para ele), vínculo ativo do
+  profissional, limite diário por usuário (`AI_DAILY_LIMIT_PER_USER`, contando
+  tentativas) e registro de toda chamada em `ai_generations` (entrada
+  minimizada, saída, status, tokens, latência).
+- Salvar uma sugestão relê a saída validada do banco — o cliente nunca envia o
+  conteúdo do treino. Sugestões viram fichas com `source = 'ia'` e
+  `ai_generation_id`; o banco impede publicar ficha de IA sem revisor.
+- Sem chave: "configuração pendente" e nenhuma ação de IA aparece — nada é
+  simulado. Os testes e2e usam um servidor local que imita a API
+  (`e2e/mock-anthropic.mjs`, `E2E_AI_MOCK=1`), que existe só nos testes.
 
 ## 7. Plano de implementação
 
@@ -184,6 +202,6 @@ solicitação ligada passa para "entregue".
 | — Banco | Schema completo + RLS + funções + seed + testes + scripts de migração | ✅ |
 | 4. Portal do aluno | Navegação inferior, biblioteca, montar treino, modo treino, evolução, Meu Treinador, perfil (exportar/excluir dados) | ✅ (fotos de progresso aguardam o armazenamento de arquivos) |
 | 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | ✅ |
-| 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões | Próxima |
-| 7. Administração | Aprovações, vínculos, exercícios/mídias, horários, conteúdos, logs | — |
+| 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões, substituições, dúvidas, revisão profissional | ✅ (testado com servidor simulado; requer chave real para uso) |
+| 7. Administração | Aprovações, vínculos, exercícios/mídias, horários, conteúdos, logs | Próxima |
 | 8. Refinamento | Service worker/offline, performance, acessibilidade, testes ampliados | — |

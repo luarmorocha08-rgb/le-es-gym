@@ -39,7 +39,7 @@ aparecem no terminal do servidor.
 | `npm run build` / `npm start` | Build e servidor de produção |
 | `npm run lint` · `npm run typecheck` | ESLint · tipos de rotas + `tsc` |
 | `npm test` | Testes unitários (Vitest) |
-| `npm run test:e2e` | Testes E2E (Playwright, desktop + mobile). Com `E2E_WITH_DB=1` inclui o fluxo real de conta |
+| `npm run test:e2e` | Testes E2E (Playwright, desktop + mobile). Com `E2E_WITH_DB=1` inclui os fluxos reais com banco; com `E2E_AI_MOCK=1` também os de IA (servidor local que imita a API) |
 | `npm run db:migrate` | Aplica migrations pendentes de `db/migrations` |
 | `npm run db:seed` | Migrations + seed da biblioteca de exercícios |
 | `npm run db:make-admin -- email@x.com` | Torna uma conta cadastrada administradora (1º admin) |
@@ -71,8 +71,16 @@ recuperação de senha mostra "não configurada" em produção.
 
 ### 2. Provedor de IA (Etapa 6)
 
-- Crie uma chave em <https://console.anthropic.com/> → `ANTHROPIC_API_KEY`, e defina `AI_MODEL`.
-- A chave fica apenas no servidor. Sem ela, o gerador mostra "configuração pendente".
+1. Crie uma conta em <https://console.anthropic.com/>, adicione créditos e gere
+   uma chave em *API Keys* → `ANTHROPIC_API_KEY`.
+2. Opcional: `AI_MODEL` (padrão `claude-opus-5-5`), `AI_EFFORT`
+   (`low` · `medium` · `high`; padrão `medium` — menor = mais rápido e barato) e
+   `AI_DAILY_LIMIT_PER_USER` (padrão 10 usos por pessoa a cada 24 h).
+3. A chave fica apenas no servidor. Sem ela, o assistente mostra
+   "configuração pendente" e nenhuma resposta é simulada.
+
+Cada uso é registrado em `ai_generations` (tokens e latência) para acompanhar
+custos. O aluno precisa autorizar o uso da IA antes do primeiro envio.
 
 ### 3. Mídias da academia (opcional, recomendado)
 

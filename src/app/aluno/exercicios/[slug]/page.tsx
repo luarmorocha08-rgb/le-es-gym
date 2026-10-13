@@ -2,10 +2,12 @@ import { ArrowLeft, ExternalLink, History, Lightbulb } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ExerciseQuestion } from "@/components/ai/exercise-question";
 import { ExerciseTile } from "@/components/student/exercise-tile";
 import { Badge } from "@/components/ui/badge";
+import { isAiConfigured } from "@/lib/ai/config";
 import { requireArea } from "@/lib/auth/dal";
-import { exerciseHistory, getExercise } from "@/lib/student/queries";
+import { exerciseHistory, getExercise, getProfile } from "@/lib/student/queries";
 import { LEVEL_LABELS, muscleLabel, type Level } from "@/lib/workout/constants";
 
 export const metadata: Metadata = { title: "Exercício" };
@@ -17,7 +19,8 @@ export default async function ExercisePage({ params }: PageProps<"/aluno/exercic
   const { slug } = await params;
   const exercise = await getExercise(viewer.id, slug);
   if (!exercise) notFound();
-  const history = await exerciseHistory(viewer.id, exercise.id);
+  const ai = isAiConfigured();
+  const [history, profile] = await Promise.all([exerciseHistory(viewer.id, exercise.id), ai ? getProfile(viewer.id) : null]);
   const best = history.reduce<number | null>((m, h) => (h.load_kg !== null && (m === null || h.load_kg > m) ? h.load_kg : m), null);
 
   return (
@@ -107,6 +110,7 @@ export default async function ExercisePage({ params }: PageProps<"/aluno/exercic
               </>
             )}
           </section>
+          {ai && <ExerciseQuestion slug={exercise.slug} hasConsent={Boolean(profile?.ai_consent_at)} />}
         </aside>
       </div>
     </article>

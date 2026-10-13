@@ -140,3 +140,19 @@ export function TrainerPlanActions({
     </div>
   );
 }
+
+/** Sugestão enviada pelo aluno para revisão → rascunho do profissional, vinculado à solicitação. */
+export function ReviewSuggestionForm({ planId, studentId, requestId }: { planId: string; studentId: string; requestId: string }) {
+  const [state, onSubmit, pending] = useFormAction<PublishState>(copyToStudent, {});
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col gap-2 sm:items-end">
+      <input type="hidden" name="planId" value={planId} />
+      <input type="hidden" name="studentId" value={studentId} />
+      <input type="hidden" name="requestId" value={requestId} />
+      <PendingButton pending={pending}>
+        <Pencil /> Revisar e criar ficha
+      </PendingButton>
+      {state.message && <p className="text-xs text-[var(--color-danger)]">{state.message}</p>}
+    </form>
+  );
+}

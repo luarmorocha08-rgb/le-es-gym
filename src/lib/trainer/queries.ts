@@ -340,7 +340,14 @@ export function getTrainerRequest(trainerId: string, requestId: string) {
       "select id, body, created_at, author_id = $2 as mine from public.request_messages where request_id = $1 order by created_at",
       [requestId, trainerId],
     );
-    return { request, events, messages };
+    // Treino do próprio aluno (ex.: sugestão de IA) enviado para revisão — visível só com vínculo ativo
+    const review = await db.query<{ id: string; title: string; source: string; split_type: string; updated_at: string }>(
+      `select id, title, source::text, split_type, updated_at from public.workout_plans
+        where request_id = $1 and author_id = $2 and status = 'em_revisao' order by updated_at desc`,
+      [requestId, request.student_id],
+    );
+    const reviewPlans = await Promise.all(review.map(async (p) => ({ ...p, days: await loadPlanDays(db, p.id) })));
+    return { request, events, messages, reviewPlans };
   });
 }
 

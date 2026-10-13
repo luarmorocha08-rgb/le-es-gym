@@ -13,6 +13,8 @@ export type TrainerPlanContext = {
   studentId?: string | null;
   requestId?: string | null;
   isTemplate?: boolean;
+  /** Rascunho criado a partir de uma sugestão de IA (fica marcado como tal) */
+  aiGenerationId?: string | null;
 };
 
 const uuid = z.uuid();
@@ -44,7 +46,7 @@ export async function saveTrainerPlan(ctx: TrainerPlanContext, input: PlanInput)
   const parsed = planSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "Revise os campos destacados.", fieldErrors: issuesByPath(parsed.error) };
   const plan = parsed.data;
-  for (const id of [ctx.planId, ctx.studentId, ctx.requestId]) {
+  for (const id of [ctx.planId, ctx.studentId, ctx.requestId, ctx.aiGenerationId]) {
     if (id && !uuid.safeParse(id).success) return { ok: false, message: "Parâmetros inválidos." };
   }
 
@@ -71,9 +73,20 @@ export async function saveTrainerPlan(ctx: TrainerPlanContext, input: PlanInput)
       if (!ctx.isTemplate && !ctx.studentId) throw err("Escolha o aluno.");
       if (ctx.requestId) await advanceRequest(db, ctx.requestId, trainerId);
       const row = await db.one<{ id: string }>(
-        `insert into public.workout_plans (student_id, author_id, source, status, is_template, title, split_type, goal, description, request_id)
-         values ($1, $2, 'profissional', 'rascunho', $3, $4, $5, $6, $7, $8) returning id`,
-        [ctx.isTemplate ? null : ctx.studentId, trainerId, Boolean(ctx.isTemplate), plan.title, plan.splitType, plan.goal, plan.description, ctx.requestId ?? null],
+        `insert into public.workout_plans (student_id, author_id, source, status, is_template, title, split_type, goal, description, request_id, ai_generation_id)
+         values ($1, $2, $9, 'rascunho', $3, $4, $5, $6, $7, $8, $10) returning id`,
+        [
+          ctx.isTemplate ? null : ctx.studentId,
+          trainerId,
+          Boolean(ctx.isTemplate),
+          plan.title,
+          plan.splitType,
+          plan.goal,
+          plan.description,
+          ctx.requestId ?? null,
+          ctx.aiGenerationId ? "ia" : "profissional",
+          ctx.aiGenerationId ?? null,
+        ],
       );
       await insertPlanStructure(db, row!.id, plan.days);
       return row!.id;
@@ -106,7 +119,7 @@ export async function publishPlan(_prev: PublishState, formData: FormData): Prom
 async function copyAs(
   trainerId: string,
   sourceId: string,
-  target: { studentId: string | null; isTemplate: boolean; basedOn?: boolean; titlePrefix?: string },
+  target: { studentId: string | null; isTemplate: boolean; basedOn?: boolean; titlePrefix?: string; requestId?: string | null },
 ) {
   return withUser(trainerId, async (db) => {
     const src = await db.one<{ id: string; title: string; student_id: string | null; request_id: string | null }>(
@@ -126,7 +139,7 @@ async function copyAs(
         trainerId,
         target.isTemplate,
         target.titlePrefix ?? null,
-        target.basedOn ? src.request_id : null,
+        target.requestId ?? (target.basedOn ? src.request_id : null),
         target.basedOn ? sourceId : null,
       ],
     );
@@ -167,11 +180,17 @@ export async function saveAsTemplate(planId: string) {
 /** Usa um modelo (ou duplica uma ficha) para um aluno vinculado, em rascunho. */
 export async function copyToStudent(_prev: PublishState, formData: FormData): Promise<PublishState> {
   const trainerId = await requireTrainerId();
-  const parsed = z.object({ planId: z.uuid(), studentId: z.uuid({ error: "Escolha o aluno." }) }).safeParse(Object.fromEntries(formData));
+  const parsed = z
+    .object({ planId: z.uuid(), studentId: z.uuid({ error: "Escolha o aluno." }), requestId: z.uuid().optional().or(z.literal("")) })
+    .safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { message: parsed.error.issues[0]?.message };
   let id: string;
   try {
-    id = await copyAs(trainerId, parsed.data.planId, { studentId: parsed.data.studentId, isTemplate: false });
+    id = await copyAs(trainerId, parsed.data.planId, {
+      studentId: parsed.data.studentId,
+      isTemplate: false,
+      requestId: parsed.data.requestId || null,
+    });
   } catch (error) {
     return { message: dbErrorMessage(error, "Não foi possível criar a ficha para o aluno.") };
   }

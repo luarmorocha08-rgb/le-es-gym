@@ -2,6 +2,7 @@ import { BookCopy, UserPlus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { trainerSubstitutes } from "@/app/profissional/_actions/ai";
 import { saveTrainerPlan } from "@/app/profissional/_actions/plans";
 import { PlanEditor } from "@/components/student/plan-editor";
 import { CopyToStudentForm } from "@/components/trainer/plan-controls";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Select } from "@/components/ui/select";
+import { isAiConfigured } from "@/lib/ai/config";
 import { requireArea } from "@/lib/auth/dal";
 import { listExercises } from "@/lib/student/queries";
 import { getTrainerRequest, listMyTemplates, listStudents } from "@/lib/trainer/queries";
@@ -113,6 +115,7 @@ export default async function CreateTrainerPlanPage({ searchParams }: PageProps<
         save={saveTrainerPlan.bind(null, { studentId: student?.id ?? null, requestId, isTemplate: asTemplate })}
         afterSaveBase="/profissional/fichas"
         saveLabel="Salvar rascunho"
+        substitutes={isAiConfigured() ? trainerSubstitutes.bind(null, asTemplate ? null : (student?.id ?? null)) : undefined}
       />
     </div>
   );

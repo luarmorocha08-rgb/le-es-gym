@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { trainerSubstitutes } from "@/app/profissional/_actions/ai";
 import { saveTrainerPlan } from "@/app/profissional/_actions/plans";
 import { PlanEditor } from "@/components/student/plan-editor";
 import { PageHeader } from "@/components/ui/page-header";
+import { isAiConfigured } from "@/lib/ai/config";
 import { requireArea } from "@/lib/auth/dal";
 import { listExercises } from "@/lib/student/queries";
 import { getTrainerPlan } from "@/lib/trainer/queries";
@@ -27,6 +29,7 @@ export default async function EditTrainerPlanPage({ params }: PageProps<"/profis
         save={saveTrainerPlan.bind(null, { planId: plan.id })}
         afterSaveBase="/profissional/fichas"
         saveLabel="Salvar rascunho"
+        substitutes={isAiConfigured() ? trainerSubstitutes.bind(null, plan.is_template ? null : plan.student_id) : undefined}
       />
     </div>
   );

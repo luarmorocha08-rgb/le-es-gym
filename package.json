@@ -16,6 +16,7 @@
     "db:make-admin": "node --env-file-if-exists=.env.local scripts/make-admin.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
     "@gsap/react": "^2.1.2",
     "@radix-ui/react-slot": "^1.5.0",
     "@react-three/drei": "^10.7.9",
