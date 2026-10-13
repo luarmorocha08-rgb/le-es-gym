@@ -104,15 +104,15 @@ export default async function PlanPage({ params }: PageProps<"/aluno/meus-treino
                 <li key={e.id} className="flex items-start justify-between gap-4 py-3">
                   <div className="min-w-0">
                     <Link href={`/aluno/exercicios/${e.slug}`} className="font-medium hover:underline">
-                      <span className="mr-2 text-white/35">{j + 1}.</span>
+                      <span className="mr-2 text-white/55">{j + 1}.</span>
                       {e.name}
                     </Link>
-                    <p className="text-xs text-white/45">{e.primary_muscles.map(muscleLabel).join(", ")}</p>
+                    <p className="text-xs text-white/55">{e.primary_muscles.map(muscleLabel).join(", ")}</p>
                     {e.notes && <p className="mt-1 text-xs italic text-white/60">{e.notes}</p>}
                   </div>
                   <p className="shrink-0 text-right text-sm tabular-nums">
                     {e.sets} × {e.reps}
-                    <span className="block text-xs text-white/45">
+                    <span className="block text-xs text-white/55">
                       {restLabel(e.rest_seconds)}
                       {e.target_load_kg !== null && ` · ${e.target_load_kg} kg`}
                     </span>

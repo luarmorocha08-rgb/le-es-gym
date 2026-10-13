@@ -105,20 +105,20 @@ export default async function TrainerPlanPage({ params }: PageProps<"/profission
               <span className="grid size-10 place-items-center rounded-xl bg-white font-display text-black">{day.label}</span> {day.name}
             </h2>
             {day.exercises.length === 0 ? (
-              <p className="mt-3 text-sm text-white/45">Sem exercícios.</p>
+              <p className="mt-3 text-sm text-white/55">Sem exercícios.</p>
             ) : (
               <ol className="mt-4 divide-y divide-white/[0.06]">
                 {day.exercises.map((e, i) => (
                   <li key={e.id} className="flex justify-between gap-4 py-2.5 text-sm">
                     <span>
-                      <span className="mr-2 text-white/35">{i + 1}.</span>
+                      <span className="mr-2 text-white/55">{i + 1}.</span>
                       {e.name}
-                      <span className="block text-xs text-white/45">{e.primary_muscles.map(muscleLabel).join(", ")}</span>
+                      <span className="block text-xs text-white/55">{e.primary_muscles.map(muscleLabel).join(", ")}</span>
                       {e.notes && <span className="block text-xs italic text-white/60">{e.notes}</span>}
                     </span>
                     <span className="shrink-0 text-right tabular-nums">
                       {e.sets} × {e.reps}
-                      <span className="block text-xs text-white/45">
+                      <span className="block text-xs text-white/55">
                         {rest(e.rest_seconds)}
                         {e.target_load_kg !== null && ` · ${e.target_load_kg} kg`}
                       </span>
@@ -143,7 +143,7 @@ export default async function TrainerPlanPage({ params }: PageProps<"/profission
                   <strong>Versão {v.version}</strong>
                   {v.change_note && <span className="text-white/65"> — {v.change_note}</span>}
                 </span>
-                <span className="text-xs text-white/45">
+                <span className="text-xs text-white/55">
                   {v.author_name ?? "—"} · {fmt.format(new Date(v.created_at))}
                   {v.plan_id !== plan.id && (
                     <Link href={`/profissional/fichas/${v.plan_id}`} className="ml-2 underline">

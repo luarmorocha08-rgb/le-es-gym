@@ -79,7 +79,7 @@ export function StatCard({ label, value, hint }: { label: string; value: number 
     <div className="metal-border glass relative rounded-2xl p-5">
       <p className="eyebrow">{label}</p>
       <p className="mt-4 font-display text-5xl leading-none tabular-nums">{value}</p>
-      {hint && <p className="mt-2 text-xs text-white/45">{hint}</p>}
+      {hint && <p className="mt-2 text-xs text-white/55">{hint}</p>}
     </div>
   );
 }

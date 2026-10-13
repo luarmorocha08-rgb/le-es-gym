@@ -55,7 +55,7 @@ export default async function AdminHoursPage() {
                         <div key={h.id} className="flex items-center justify-end gap-3 text-sm tabular-nums">
                           <span>
                             {h.opens_at.slice(0, 5)} – {h.closes_at.slice(0, 5)}
-                            {h.note && <span className="ml-2 text-white/45">{h.note}</span>}
+                            {h.note && <span className="ml-2 text-white/55">{h.note}</span>}
                           </span>
                           <DeleteHourButton id={h.id} label={label} />
                         </div>

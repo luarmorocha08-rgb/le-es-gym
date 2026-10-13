@@ -39,7 +39,7 @@ aparecem no terminal do servidor.
 | `npm run build` / `npm start` | Build e servidor de produção |
 | `npm run lint` · `npm run typecheck` | ESLint · tipos de rotas + `tsc` |
 | `npm test` | Testes unitários (Vitest) |
-| `npm run test:e2e` | Testes E2E (Playwright, desktop + mobile). Com `E2E_WITH_DB=1` inclui os fluxos reais com banco; com `E2E_AI_MOCK=1` também os de IA (servidor local que imita a API) |
+| `npm run test:e2e` | Testes E2E (Playwright, desktop + mobile), incluindo auditoria de acessibilidade WCAG 2.1 AA (axe), PWA/SEO e modo offline. Com `E2E_WITH_DB=1` inclui os fluxos reais com banco; com `E2E_AI_MOCK=1` também os de IA (servidor local que imita a API) |
 | `npm run db:migrate` | Aplica migrations pendentes de `db/migrations` |
 | `npm run db:seed` | Migrations + seed da biblioteca de exercícios |
 | `npm run db:make-admin -- email@x.com` | Torna uma conta cadastrada administradora (1º admin) |
@@ -98,6 +98,17 @@ substituir o emblema em `src/components/brand/emblem.tsx`.
 - Cada requisição roda no banco como o papel `authenticated` com o id da
   sessão: as políticas RLS valem mesmo se houver bug no código. Testes em
   `db/tests`. As tabelas de login (schema `auth`) ficam inacessíveis a esse papel.
-- Parâmetro `next` sanitizado contra open redirect; cabeçalhos de segurança
-  em `next.config.ts`; segredos somente no servidor; limite de tentativas de
-  login pelo Better Auth.
+- Parâmetro `next` e links do aviso do site sanitizados contra open redirect;
+  cabeçalhos de segurança (HSTS em produção) em `next.config.ts`; segredos
+  somente no servidor.
+- Limite de tentativas no banco (vale com várias instâncias): login (por
+  e-mail e por IP), cadastro, recuperação e troca de senha. O IP vem do
+  `x-forwarded-for` da hospedagem; `RATE_LIMIT_IP_MULTIPLIER` amplia só os
+  limites por IP (usado nos testes automatizados).
+
+## App instalável e modo offline
+
+- Instalável (manifest + ícones). O service worker guarda só arquivos
+  estáticos e a página `/offline` — nunca páginas ou dados pessoais.
+- Sem conexão, navegações e ações (ex.: séries registradas no treino) ficam
+  pendentes e são enviadas sozinhas quando a conexão volta, com aviso na tela.

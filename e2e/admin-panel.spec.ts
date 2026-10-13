@@ -33,7 +33,7 @@ test.beforeAll(async ({ browser }) => {
   sp = await signup(browser, student, false);
 });
 test.afterAll(async () => {
-  await Promise.all([ap?.close(), tp?.close(), sp?.close()]);
+  await Promise.all([ap?.context().close(), tp?.context().close(), sp?.context().close()]);
   // rede de segurança caso um teste falhe antes da limpeza pela interface
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();

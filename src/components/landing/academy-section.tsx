@@ -43,7 +43,7 @@ export function AcademySection() {
                 </span>
               </span>
               <span className="block overflow-hidden py-[0.14em] -my-[0.14em]">
-                <span data-line className="block text-white/40">
+                <span data-line className="block text-white/55">
                   Alma de bairro.
                 </span>
               </span>
@@ -68,7 +68,7 @@ export function AcademySection() {
                   <span className="grid size-12 place-items-center rounded-xl border border-white/15 bg-white/[0.04] [&_svg]:size-5">
                     {f.icon}
                   </span>
-                  <span className="font-heading text-xs tracking-[0.2em] text-white/30">0{i + 1}</span>
+                  <span className="font-heading text-xs tracking-[0.2em] text-white/55">0{i + 1}</span>
                 </div>
                 <h3 className="mt-10 font-heading text-xl uppercase tracking-[0.06em]">{f.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/60">{f.text}</p>

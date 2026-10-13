@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
             <span className="text-metal">deve treinar com os leões.</span>
           </p>
         </div>
-        <p className="relative text-sm text-white/45">
+        <p className="relative text-sm text-white/55">
           {gym.address.street} · {gym.address.city}/{gym.address.state}
         </p>
       </aside>

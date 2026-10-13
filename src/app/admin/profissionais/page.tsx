@@ -89,7 +89,7 @@ export default async function AdminProfessionalsPage({ searchParams }: PageProps
                   </p>
                   {p.specialties.length > 0 && <p className="text-sm text-white/60">Especialidades: {p.specialties.join(", ")}</p>}
                   {p.bio && <p className="max-w-2xl whitespace-pre-line text-sm text-white/70">{p.bio}</p>}
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-white/55">
                     Pedido em {fmt.format(new Date(p.created_at))}
                     {p.reviewed_at && ` · revisado em ${fmt.format(new Date(p.reviewed_at))}${p.reviewer_name ? ` por ${p.reviewer_name}` : ""}`}
                   </p>
@@ -100,7 +100,7 @@ export default async function AdminProfessionalsPage({ searchParams }: PageProps
                 </div>
                 <div className="lg:w-80 lg:shrink-0">
                   {p.user_id === viewer.id ? (
-                    <p className="text-xs text-white/45">Seu próprio cadastro é revisado por outro administrador.</p>
+                    <p className="text-xs text-white/55">Seu próprio cadastro é revisado por outro administrador.</p>
                   ) : (
                     <ReviewProfessionalForm userId={p.user_id} status={p.status} name={p.full_name} />
                   )}

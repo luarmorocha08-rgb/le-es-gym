@@ -245,7 +245,8 @@ export function PlanEditor({
       </fieldset>
 
       {/* Dias */}
-      <div className="mt-8 flex items-center gap-2 overflow-x-auto pb-2" role="tablist" aria-label="Dias do treino">
+      <div className="mt-8 flex items-center gap-2 overflow-x-auto pb-2">
+        <div className="flex items-center gap-2" role="tablist" aria-label="Dias do treino">
         {days.map((d, i) => {
           const hasError = Object.keys(errors).some((k) => k.startsWith(`days.${i}.`));
           return (
@@ -253,7 +254,9 @@ export function PlanEditor({
               key={d.key}
               type="button"
               role="tab"
+              id={`dia-tab-${d.key}`}
               aria-selected={i === active}
+              aria-controls="dia-painel"
               onClick={() => setActive(i)}
               className={cn(
                 "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-left transition",
@@ -266,6 +269,7 @@ export function PlanEditor({
             </button>
           );
         })}
+        </div>
         {days.length < 7 && (
           <Button type="button" variant="ghost" size="sm" onClick={addDay} aria-label="Adicionar dia">
             <Plus /> Dia
@@ -274,7 +278,7 @@ export function PlanEditor({
       </div>
 
       {day && (
-        <section className="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-6" aria-label={`Dia ${day.label}`}>
+        <section id="dia-painel" role="tabpanel" aria-labelledby={`dia-tab-${day.key}`} className="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-6">
           <div className="grid gap-3 sm:grid-cols-[120px_1fr_auto] sm:items-end">
             <div>
               <Label htmlFor="day-label">Rótulo</Label>
@@ -407,7 +411,7 @@ function ExerciseRow({
         <button
           type="button"
           aria-label="Arrastar para reordenar"
-          className="mt-1 hidden cursor-grab touch-none rounded-md p-1 text-white/40 hover:text-white active:cursor-grabbing sm:block"
+          className="mt-1 hidden cursor-grab touch-none rounded-md p-1 text-white/55 hover:text-white active:cursor-grabbing sm:block"
           onPointerDown={(ev) => controls.start(ev)}
         >
           <GripVertical className="size-4" />
@@ -416,10 +420,10 @@ function ExerciseRow({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="font-heading uppercase leading-tight tracking-[0.04em]">
-                <span className="mr-2 text-white/35">{index + 1}.</span>
+                <span className="mr-2 text-white/55">{index + 1}.</span>
                 {exercise?.name ?? "Exercício indisponível"}
               </p>
-              {exercise && <p className="text-xs text-white/45">{exercise.primary_muscles.map(muscleLabel).join(", ")} · {exercise.equipment}</p>}
+              {exercise && <p className="text-xs text-white/55">{exercise.primary_muscles.map(muscleLabel).join(", ")} · {exercise.equipment}</p>}
             </div>
             <div className="flex shrink-0 items-center">
               <button type="button" className="rounded-md p-1.5 text-white/50 hover:text-white disabled:opacity-20" onClick={() => onMove(-1)} disabled={index === 0} aria-label="Mover para cima">
@@ -435,15 +439,15 @@ function ExerciseRow({
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             <div>
-              <label htmlFor={id("sets")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/45">Séries</label>
+              <label htmlFor={id("sets")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/55">Séries</label>
               <Input id={id("sets")} inputMode="numeric" className="mt-1 h-10" value={row.sets} onChange={(ev) => onChange({ sets: ev.target.value })} aria-invalid={e("sets") ? true : undefined} />
             </div>
             <div>
-              <label htmlFor={id("reps")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/45">Repetições</label>
+              <label htmlFor={id("reps")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/55">Repetições</label>
               <Input id={id("reps")} className="mt-1 h-10" value={row.reps} placeholder="8-12" onChange={(ev) => onChange({ reps: ev.target.value })} aria-invalid={e("reps") ? true : undefined} />
             </div>
             <div>
-              <label htmlFor={id("rest")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/45">Descanso</label>
+              <label htmlFor={id("rest")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/55">Descanso</label>
               <Select id={id("rest")} className="mt-1 h-10" value={row.restSeconds} onChange={(ev) => onChange({ restSeconds: ev.target.value })}>
                 {REST_OPTIONS.map((s) => (
                   <option key={s} value={s}>
@@ -453,7 +457,7 @@ function ExerciseRow({
               </Select>
             </div>
             <div>
-              <label htmlFor={id("load")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/45">Carga (kg)</label>
+              <label htmlFor={id("load")} className="text-[0.65rem] uppercase tracking-[0.14em] text-white/55">Carga (kg)</label>
               <Input id={id("load")} inputMode="decimal" className="mt-1 h-10" value={row.targetLoadKg} placeholder="opcional" onChange={(ev) => onChange({ targetLoadKg: ev.target.value.replace(",", ".") })} aria-invalid={e("targetLoadKg") ? true : undefined} />
             </div>
           </div>
@@ -527,7 +531,7 @@ function ExercisePicker({
           <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_180px]">
             <label className="relative">
               <span className="sr-only">Buscar</span>
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/40" />
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-white/55" />
               <Input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar exercício" className="h-11 pl-10" />
             </label>
             <Select aria-label="Filtrar por músculo" value={muscle} onChange={(e) => setMuscle(e.target.value)} className="h-11">
@@ -554,7 +558,7 @@ function ExercisePicker({
                   />
                   <span className="min-w-0">
                     <span className="block text-sm font-medium">{e.name}</span>
-                    <span className="block text-xs text-white/45">
+                    <span className="block text-xs text-white/55">
                       {e.primary_muscles.map(muscleLabel).join(", ")} · {e.equipment}
                     </span>
                   </span>

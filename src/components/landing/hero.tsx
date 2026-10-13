@@ -124,7 +124,7 @@ export function Hero() {
 
       <div
         data-hero-fade
-        className="pointer-events-none absolute bottom-6 right-6 hidden items-center gap-3 font-heading text-[0.65rem] uppercase tracking-[0.3em] text-white/45 sm:flex"
+        className="pointer-events-none absolute bottom-6 right-6 hidden items-center gap-3 font-heading text-[0.65rem] uppercase tracking-[0.3em] text-white/55 sm:flex"
         aria-hidden
       >
         Role para explorar

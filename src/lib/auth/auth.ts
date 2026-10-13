@@ -23,7 +23,9 @@ function createAuth() {
       expiresIn: 60 * 60 * 24 * 30, // 30 dias
       updateAge: 60 * 60 * 24,
     },
-    rateLimit: { enabled: true, window: 60, max: 30 },
+    // Rotas HTTP /api/auth/*: contadores no banco (valem entre instâncias).
+    // As Server Actions de login/cadastro/senha usam src/lib/security/rate-limit.ts.
+    rateLimit: { enabled: true, window: 60, max: 30, storage: "database" },
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,

@@ -70,7 +70,7 @@ export default async function ExercisePage({ params }: PageProps<"/aluno/exercic
               </ul>
             </>
           )}
-          <p className="mt-10 text-xs text-white/40">
+          <p className="mt-10 text-xs text-white/55">
             Em caso de dor ou desconforto, interrompa o exercício e procure um profissional da academia.
           </p>
         </div>
@@ -96,7 +96,7 @@ export default async function ExercisePage({ params }: PageProps<"/aluno/exercic
             ) : (
               <>
                 <p className="mt-3 font-display text-4xl">{best ?? "—"} kg</p>
-                <p className="text-xs text-white/45">maior carga registrada</p>
+                <p className="text-xs text-white/55">maior carga registrada</p>
                 <ul className="mt-4 divide-y divide-white/[0.06] text-sm">
                   {history.slice(0, 8).map((h, i) => (
                     <li key={i} className="flex justify-between py-2 tabular-nums">

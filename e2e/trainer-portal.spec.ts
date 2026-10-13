@@ -28,8 +28,8 @@ test.beforeAll(async ({ browser }) => {
   await approveTrainer(trainer.email, stamp);
 });
 test.afterAll(async () => {
-  await sp?.close();
-  await tp?.close();
+  await sp?.context().close();
+  await tp?.context().close();
 });
 
 test("profissional aprovado configura o perfil público", async () => {

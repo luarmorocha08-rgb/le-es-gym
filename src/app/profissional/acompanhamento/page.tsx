@@ -35,7 +35,7 @@ export default async function MonitoringPage() {
         <div className="overflow-x-auto rounded-2xl border border-white/10" data-lenis-prevent>
           <table className="w-full min-w-[760px] text-sm">
             <caption className="sr-only">Acompanhamento dos alunos vinculados</caption>
-            <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-[0.12em] text-white/45">
+            <thead className="bg-white/[0.03] text-left text-xs uppercase tracking-[0.12em] text-white/55">
               <tr>
                 <th className="px-4 py-3 font-normal">Aluno</th>
                 <th className="px-4 py-3 font-normal">Treinos (4 sem.)</th>
@@ -58,11 +58,11 @@ export default async function MonitoringPage() {
                     </td>
                     <td className="px-4 py-3 tabular-nums">
                       {r.sessions_28d}
-                      {r.days_per_week ? <span className="text-white/45"> / {r.days_per_week * 4}</span> : null}
+                      {r.days_per_week ? <span className="text-white/55"> / {r.days_per_week * 4}</span> : null}
                     </td>
                     <td className="px-4 py-3">
                       {adh === null ? (
-                        <span className="text-xs text-white/40">meta não informada</span>
+                        <span className="text-xs text-white/55">meta não informada</span>
                       ) : (
                         <div className="flex items-center gap-2">
                           <div className="h-1.5 w-20 overflow-hidden rounded-full bg-white/10" role="meter" aria-valuenow={adh} aria-valuemin={0} aria-valuemax={100} aria-label={`Aderência ${adh}%`}>
@@ -79,7 +79,7 @@ export default async function MonitoringPage() {
                       {r.last_feedback ? (
                         <>
                           “{r.last_feedback}”
-                          {r.last_feedback_at && <span className="block text-white/35">{dayFmt.format(new Date(r.last_feedback_at))}</span>}
+                          {r.last_feedback_at && <span className="block text-white/55">{dayFmt.format(new Date(r.last_feedback_at))}</span>}
                         </>
                       ) : (
                         "—"

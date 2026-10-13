@@ -100,7 +100,7 @@ export default async function TrainerRequestPage({ params }: PageProps<"/profiss
                     {d.exercises.map((e) => (
                       <li key={e.id} className="flex justify-between gap-2">
                         <span>{e.name}</span>
-                        <span className="tabular-nums text-white/45">
+                        <span className="tabular-nums text-white/55">
                           {e.sets} × {e.reps}
                         </span>
                       </li>
@@ -142,12 +142,12 @@ export default async function TrainerRequestPage({ params }: PageProps<"/profiss
               {messages.map((m) => (
                 <li key={m.id} className={cn("max-w-[85%] rounded-2xl px-4 py-2.5 text-sm", m.mine ? "ml-auto rounded-br-md bg-white text-black" : "rounded-bl-md border border-white/10 bg-white/[0.04]")}>
                   <p className="whitespace-pre-line">{m.body}</p>
-                  <p className={cn("mt-1 text-[0.6rem]", m.mine ? "text-black/45" : "text-white/40")}>{fmt.format(new Date(m.created_at))}</p>
+                  <p className={cn("mt-1 text-[0.6rem]", m.mine ? "text-black/60" : "text-white/55")}>{fmt.format(new Date(m.created_at))}</p>
                 </li>
               ))}
             </ul>
           )}
-          {closed ? <p className="text-xs text-white/40">Solicitação encerrada.</p> : <TrainerMessageForm requestId={r.id} />}
+          {closed ? <p className="text-xs text-white/55">Solicitação encerrada.</p> : <TrainerMessageForm requestId={r.id} />}
         </section>
         <section aria-labelledby="historico" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
           <h2 id="historico" className="eyebrow mb-4">
@@ -158,7 +158,7 @@ export default async function TrainerRequestPage({ params }: PageProps<"/profiss
               <li key={e.id}>
                 <p>{REQUEST_STATUS_LABELS[e.to_status]}</p>
                 {e.note && <p className="text-xs text-white/55">“{e.note}”</p>}
-                <p className="text-[0.65rem] text-white/35">
+                <p className="text-[0.65rem] text-white/55">
                   {fmt.format(new Date(e.created_at))} · {e.mine ? "você" : "aluno"}
                 </p>
               </li>

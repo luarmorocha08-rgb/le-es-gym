@@ -65,7 +65,7 @@ export function SignupForm({ defaultProfessional, disabled }: { defaultProfessio
           />
           <span>
             Sou profissional de educação física e quero atuar na plataforma.
-            <span className="mt-1 block text-xs text-white/45">
+            <span className="mt-1 block text-xs text-white/55">
               Seu acesso como profissional será liberado somente após aprovação da administração. Até lá, você usa a
               conta como aluno.
             </span>

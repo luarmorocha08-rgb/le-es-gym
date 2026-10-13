@@ -40,13 +40,13 @@ export default async function MyTrainerPage() {
                   <UserCheck className="size-5 shrink-0 text-white/50" aria-hidden />
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{r.trainer_name ?? "Profissional"}</p>
-                    <p className="text-xs text-white/45">
+                    <p className="text-xs text-white/55">
                       {GOAL_LABELS[r.goal as Goal]} · enviada em {dateFmt.format(new Date(r.created_at))}
                       {r.trainer_messages > 0 && ` · ${r.trainer_messages} mensagem(ns) do profissional`}
                     </p>
                   </div>
                   <Badge className={r.status === "entregue" ? "border-white bg-white text-black" : ""}>{REQUEST_STATUS_LABELS[r.status]}</Badge>
-                  <ChevronRight className="size-4 text-white/30" />
+                  <ChevronRight className="size-4 text-white/55" />
                 </Link>
               </li>
             ))}

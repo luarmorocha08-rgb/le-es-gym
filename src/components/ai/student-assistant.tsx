@@ -347,7 +347,7 @@ export function StudentAssistant({
           <dl className="grid gap-2 rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-sm sm:grid-cols-2">
             {STEPS.map((s) => (
               <div key={s.id}>
-                <dt className="text-xs text-white/45">{s.question}</dt>
+                <dt className="text-xs text-white/55">{s.question}</dt>
                 <dd>{answerLabel(s.id, answers) || "—"}</dd>
               </div>
             ))}

@@ -11,7 +11,14 @@ const LionMedallionCanvas = dynamic(() => import("./lion-medallion"), {
   loading: () => null,
 });
 
+/** Economia de dados ou aparelho modesto → emblema estático (evita ~1 MB de JS 3D). */
+function prefersLightweight() {
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+  return Boolean(nav.connection?.saveData) || (nav.deviceMemory !== undefined && nav.deviceMemory < 4);
+}
+
 function supportsWebGL() {
+  if (prefersLightweight()) return false;
   try {
     const canvas = document.createElement("canvas");
     return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
@@ -31,8 +38,8 @@ export function MedallionFallback({ className }: { className?: string }) {
 }
 
 /**
- * Carrega a cena 3D somente no cliente, quando há suporte a WebGL e o usuário
- * não prefere movimento reduzido. Pausa a renderização fora da viewport.
+ * Carrega a cena 3D somente no cliente, quando há suporte a WebGL, o usuário
+ * não prefere movimento reduzido e o aparelho/conexão comporta. Pausa a renderização fora da viewport.
  */
 export function Scene3D({
   className,

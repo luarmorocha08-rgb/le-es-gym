@@ -8,6 +8,7 @@ import { loadViewer } from "@/lib/auth/dal";
 import { safeNextPath } from "@/lib/auth/routes";
 import { withUser } from "@/lib/db";
 import { emailMode, isEmailConfigured } from "@/lib/env";
+import { clientIp, consume, resetLimit, RULES, tooManyMessage } from "@/lib/security/rate-limit";
 import {
   loginSchema,
   newPasswordSchema,
@@ -61,12 +62,18 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
   const auth = getAuth();
   if (!auth) return NOT_CONFIGURED;
 
+  const ip = await clientIp();
+  const emailKey = `login:email:${parsed.data.email.toLowerCase()}`;
+  const wait = Math.max(await consume(`login:ip:${ip}`, RULES.loginIp, "ip"), await consume(emailKey, RULES.loginEmail));
+  if (wait) return { status: "error", message: tooManyMessage(wait), values };
+
   let userId: string;
   let email: string;
   try {
     const result = await auth.api.signInEmail({ body: parsed.data, headers: await headers() });
     userId = result.user.id;
     email = result.user.email;
+    await resetLimit(emailKey);
   } catch (error) {
     return { status: "error", message: authErrorMessage(error, "Não foi possível entrar. Tente novamente."), values };
   }
@@ -89,6 +96,9 @@ export async function signup(_prev: FormState, formData: FormData): Promise<Form
 
   const auth = getAuth();
   if (!auth) return NOT_CONFIGURED;
+
+  const wait = await consume(`signup:ip:${await clientIp()}`, RULES.signupIp, "ip");
+  if (wait) return { status: "error", message: tooManyMessage(wait), values };
 
   const { fullName, email, password, wantsProfessional, cref } = parsed.data;
   let userId: string;
@@ -145,6 +155,11 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
   if (emailMode() === "off") {
     return { status: "error", message: "A recuperação por e-mail ainda não foi configurada. Fale com a academia." };
   }
+  const wait = Math.max(
+    await consume(`reset:ip:${await clientIp()}`, RULES.resetIp, "ip"),
+    await consume(`reset:email:${parsed.data.email.toLowerCase()}`, RULES.resetEmail),
+  );
+  if (wait) return { status: "error", message: tooManyMessage(wait) };
 
   try {
     await auth.api.requestPasswordReset({
@@ -172,6 +187,8 @@ export async function updatePassword(_prev: FormState, formData: FormData): Prom
 
   const auth = getAuth();
   if (!auth) return NOT_CONFIGURED;
+  const wait = await consume(`new-password:ip:${await clientIp()}`, RULES.newPasswordIp, "ip");
+  if (wait) return { status: "error", message: tooManyMessage(wait) };
 
   try {
     await auth.api.resetPassword({ body: { newPassword: parsed.data.password, token }, headers: await headers() });

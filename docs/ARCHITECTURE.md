@@ -119,7 +119,7 @@ Arquivo: `db/migrations/0001_init_schema.sql`. As tabelas `auth.users`, `auth.se
   por ator); aceitar uma solicitação cria o vínculo.
 - `export_my_data()` exporta todos os dados do titular (LGPD art. 18).
 
-Os testes em `db/tests/rls_test.sql` exercitam 94 cenários de permissão
+Os testes em `db/tests/rls_test.sql` exercitam 98 cenários de permissão
 (aluno, aluno de outro, profissional vinculado/não vinculado/pendente/
 suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 
@@ -215,7 +215,27 @@ solicitação ligada passa para "entregue".
   (`audit_admin_change`); seed e scripts não poluem o log.
 - Ninguém revisa o próprio cadastro nem remove o próprio acesso de admin.
 
-## 8. Plano de implementação
+## 8. Refinamento (Etapa 8)
+
+- **Offline:** `experimental.useOffline` mantém navegações e Server Actions
+  pendentes sem conexão e as refaz quando ela volta (o registro de séries é
+  idempotente: `on conflict` por sessão/exercício/série). `useOffline` alimenta
+  o aviso global, o esqueleto de carregamento e os estados do modo treino.
+  `public/sw.js` guarda só estáticos versionados e `/offline` (sem HTML nem
+  dados pessoais, pois aparelhos podem ser compartilhados).
+- **PWA/SEO:** manifest com ícones PNG/maskable e atalhos, `apple-icon`,
+  `robots.ts` (bloqueia áreas autenticadas), `sitemap.ts`, dados estruturados
+  `HealthClub` com endereço e horários reais, imagem Open Graph gerada da marca.
+- **Acessibilidade:** auditoria axe (WCAG 2.1 A/AA) em todas as páginas
+  públicas e dos três portais; contraste mínimo 4,5:1 no texto secundário,
+  abas com `tabpanel`, gráficos com pontos focáveis rotulados.
+- **Desempenho:** cena 3D só com WebGL, sem movimento reduzido e fora de
+  economia de dados/aparelhos com pouca memória (emblema estático no lugar).
+- **Segurança:** limite de tentativas no Postgres para as Server Actions de
+  autenticação (o limitador do Better Auth só cobre `/api/auth/*`, que agora
+  também guarda contadores no banco); HSTS e COOP em produção.
+
+## 9. Plano de implementação
 
 | Etapa | Escopo | Status |
 | --- | --- | --- |
@@ -227,4 +247,4 @@ solicitação ligada passa para "entregue".
 | 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | ✅ |
 | 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões, substituições, dúvidas, revisão profissional | ✅ (testado com servidor simulado; requer chave real para uso) |
 | 7. Administração | Aprovações, usuários e papéis, vínculos, biblioteca de exercícios, horários, aviso no site, auditoria e uso da IA | ✅ (upload de mídias aguarda armazenamento de arquivos) |
-| 8. Refinamento | Service worker/offline, performance, acessibilidade, testes ampliados | Próxima |
+| 8. Refinamento | Offline/PWA, acessibilidade WCAG 2.1 AA, SEO, desempenho, limite de tentativas, testes ampliados | ✅ |

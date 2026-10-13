@@ -15,5 +15,5 @@ test("sem chave da IA, o portal mostra configuração pendente e esconde ações
   await expect(page.getByRole("link", { name: "Montar treino manualmente" })).toBeVisible();
   await page.goto("/aluno/exercicios/supino-reto-barra");
   await expect(page.getByText("Tirar dúvida com a IA")).toHaveCount(0);
-  await page.close();
+  await page.context().close();
 });

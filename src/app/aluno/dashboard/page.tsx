@@ -88,7 +88,7 @@ export default async function StudentDashboard() {
               </Button>
             </div>
             {afterDay && afterDay.id !== nextDay.id && (
-              <p className="mt-5 text-sm text-black/50">
+              <p className="mt-5 text-sm text-black/60">
                 Próximo: Treino {afterDay.label} — {afterDay.name}
               </p>
             )}
@@ -134,10 +134,10 @@ export default async function StudentDashboard() {
               const isToday = d === today;
               return (
                 <li key={d} className="flex flex-col items-center gap-1.5">
-                  <span className={`text-[0.65rem] ${isToday ? "text-white" : "text-white/40"}`}>{WEEK_LETTERS[i]}</span>
+                  <span className={`text-[0.65rem] ${isToday ? "text-white" : "text-white/55"}`}>{WEEK_LETTERS[i]}</span>
                   <span
                     className={`grid aspect-square w-full max-w-11 place-items-center rounded-full border text-xs ${
-                      done ? "border-white bg-white text-black" : isToday ? "border-white/70" : "border-white/15 text-white/40"
+                      done ? "border-white bg-white text-black" : isToday ? "border-white/70" : "border-white/15 text-white/55"
                     }`}
                     aria-label={`${shortDate.format(new Date(`${d}T00:00:00Z`))}${done ? ": treinou" : ""}${isToday ? " (hoje)" : ""}`}
                   >
@@ -147,7 +147,7 @@ export default async function StudentDashboard() {
               );
             })}
           </ol>
-          <p className="mt-4 text-xs text-white/40">Meta: {target} treinos por semana{data.daysPerWeek ? "" : " (ajuste no seu perfil)"}. Descanso também faz parte da evolução.</p>
+          <p className="mt-4 text-xs text-white/55">Meta: {target} treinos por semana{data.daysPerWeek ? "" : " (ajuste no seu perfil)"}. Descanso também faz parte da evolução.</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -164,7 +164,7 @@ export default async function StudentDashboard() {
               <CountUp value={data.totals.goals_open} />
             </p>
             <p className="mt-1 text-xs uppercase tracking-[0.14em] text-white/50">Metas em andamento</p>
-            {data.totals.goals_done > 0 && <p className="mt-1 text-xs text-white/40">{data.totals.goals_done} concluídas</p>}
+            {data.totals.goals_done > 0 && <p className="mt-1 text-xs text-white/55">{data.totals.goals_done} concluídas</p>}
           </Link>
         </div>
       </section>

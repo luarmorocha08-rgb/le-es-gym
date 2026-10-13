@@ -41,8 +41,8 @@ test.beforeAll(async ({ browser }) => {
   await expect(tp.getByText("Perfil profissional atualizado.")).toBeVisible();
 });
 test.afterAll(async () => {
-  await sp?.close();
-  await tp?.close();
+  await sp?.context().close();
+  await tp?.context().close();
 });
 
 test("IA exige consentimento antes de qualquer envio", async () => {

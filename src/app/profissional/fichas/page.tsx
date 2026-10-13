@@ -25,7 +25,7 @@ function Row({ p }: { p: TrainerPlanRow }) {
           </p>
         </div>
         {!p.is_template && <Badge className={p.status === "rascunho" ? "border-white/60 text-white" : ""}>{PLAN_STATUS_LABELS[p.status]}</Badge>}
-        <ChevronRight className="size-4 text-white/30 group-hover:text-white" />
+        <ChevronRight className="size-4 text-white/55 group-hover:text-white" />
       </Link>
     </li>
   );

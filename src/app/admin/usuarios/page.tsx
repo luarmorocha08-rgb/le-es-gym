@@ -35,7 +35,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
       <form className="mb-6 flex flex-col gap-3 sm:flex-row" role="search">
         <label className="relative flex-1">
           <span className="sr-only">Buscar por nome ou e-mail</span>
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/40" aria-hidden />
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/55" aria-hidden />
           <Input name="q" defaultValue={q} placeholder="Buscar por nome ou e-mail" className="pl-11" />
         </label>
         <label className="sm:w-56">
@@ -61,7 +61,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-white/10">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="bg-white/[0.03] text-xs uppercase tracking-[0.12em] text-white/45">
+            <thead className="bg-white/[0.03] text-xs uppercase tracking-[0.12em] text-white/55">
               <tr>
                 <th className="px-4 py-3 font-normal">Nome</th>
                 <th className="px-4 py-3 font-normal">Papéis</th>
@@ -76,7 +76,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
                     <Link href={`/admin/usuarios/${u.id}`} className="font-medium hover:underline">
                       {u.full_name}
                     </Link>
-                    <span className="block text-xs text-white/45">
+                    <span className="block text-xs text-white/55">
                       {u.email}
                       {!u.email_verified && " · e-mail não confirmado"}
                     </span>

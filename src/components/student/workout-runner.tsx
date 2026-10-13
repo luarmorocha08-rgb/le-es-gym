@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { Check, ChevronLeft, ChevronRight, Info, ListChecks, Loader2, Minus, Pause, Plus, Timer, Undo2, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Info, ListChecks, Loader2, Minus, Pause, Plus, Timer, Undo2, WifiOff, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useOffline } from "next/offline";
 import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { abandonSession, finishSession, logSet, removeSet, type LoggedSet } from "@/app/aluno/_actions/sessions";
 import { ExerciseTile } from "@/components/student/exercise-tile";
@@ -123,7 +124,7 @@ export function WorkoutRunner({ session }: { session: SessionDetail }) {
 
           {showInfo && (
             <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white/75">
-              <p className="mb-2 text-xs text-white/45">{current.primary_muscles.map(muscleLabel).join(", ")} · {current.equipment}</p>
+              <p className="mb-2 text-xs text-white/55">{current.primary_muscles.map(muscleLabel).join(", ")} · {current.equipment}</p>
               <ol className="list-decimal space-y-1.5 pl-5">
                 {current.instructions.map((s, i) => (
                   <li key={i}>{s}</li>
@@ -237,6 +238,7 @@ function SetRow({
   const [load, setLoad] = useState(logged?.load_kg != null ? String(logged.load_kg) : suggestedLoad != null ? String(suggestedLoad) : "");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const offline = useOffline();
   const touched = useRef(false);
 
   // Atualiza a carga sugerida quando a série anterior desta sessão muda (até o usuário editar)
@@ -284,9 +286,9 @@ function SetRow({
       <div className="flex items-center justify-between">
         <p className="font-heading text-sm uppercase tracking-[0.16em]">
           Série {setNumber}
-          {setNumber > exercise.sets && <span className="ml-2 text-white/40">extra</span>}
+          {setNumber > exercise.sets && <span className="ml-2 text-white/55">extra</span>}
         </p>
-        <p className="text-xs text-white/45">
+        <p className="text-xs text-white/55">
           {previous ? `Anterior: ${previous.reps} × ${previous.load_kg ?? "—"} kg` : "Sem registro anterior"}
         </p>
       </div>
@@ -328,6 +330,11 @@ function SetRow({
           </Button>
         </div>
       )}
+      {pending && offline && (
+        <p role="status" className="mt-2 flex items-center gap-1.5 text-xs text-white/70">
+          <WifiOff className="size-3.5" aria-hidden /> Sem conexão — esta série será salva assim que a conexão voltar.
+        </p>
+      )}
       {error && (
         <p role="alert" className="mt-2 text-xs text-[var(--color-danger)]">
           {error}
@@ -355,7 +362,7 @@ function Stepper({
   const id = useId();
   return (
     <div>
-      <label htmlFor={id} className="text-[0.62rem] uppercase tracking-[0.14em] text-white/45">
+      <label htmlFor={id} className="text-[0.62rem] uppercase tracking-[0.14em] text-white/55">
         {label}
       </label>
       <div className="mt-1 flex h-14 items-center rounded-xl border border-white/12 bg-white/[0.03]">
@@ -374,7 +381,7 @@ function Stepper({
           <Plus className="size-4" />
         </button>
       </div>
-      <span id={`${id}-dica`} className="mt-1 block text-[0.62rem] text-white/35">
+      <span id={`${id}-dica`} className="mt-1 block text-[0.62rem] text-white/55">
         {hint}
       </span>
     </div>
@@ -515,10 +522,11 @@ function FinishDialog({
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const efforts = useMemo(() => Array.from({ length: 10 }, (_, i) => i + 1), []);
+  const offline = useOffline();
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm sm:items-center sm:justify-center">
-      <div className="w-full rounded-t-3xl border border-white/15 bg-[#0b0c0e] p-6 sm:max-w-md sm:rounded-3xl" role="dialog" aria-labelledby="finish-title">
+      <div className="w-full rounded-t-3xl border border-white/15 bg-[#0b0c0e] p-6 sm:max-w-md sm:rounded-3xl" role="dialog" aria-modal="true" aria-labelledby="finish-title">
         <h2 id="finish-title" className="font-display text-4xl uppercase">Concluir treino</h2>
         <p className="mt-2 text-sm text-white/60">
           {done} de {planned} séries planejadas registradas.
@@ -539,13 +547,18 @@ function FinishDialog({
               </button>
             ))}
           </div>
-          <p className="mt-2 flex justify-between text-[0.65rem] text-white/40">
+          <p className="mt-2 flex justify-between text-[0.65rem] text-white/55">
             <span>muito leve</span>
             <span>máximo</span>
           </p>
         </fieldset>
         <Textarea className="mt-5 min-h-20" placeholder="Algum comentário para o seu treinador? (opcional)" value={feedback} maxLength={1000} onChange={(e) => setFeedback(e.target.value)} aria-label="Comentário" />
         {error && <p role="alert" className="mt-3 text-sm text-[var(--color-danger)]">{error}</p>}
+        {pending && offline && (
+          <p role="status" className="mt-3 flex items-center gap-1.5 text-sm text-white/70">
+            <WifiOff className="size-4" aria-hidden /> Sem conexão — o treino será concluído assim que a conexão voltar.
+          </p>
+        )}
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Button variant="ghost" size="lg" onClick={onClose}>
             Voltar
@@ -564,7 +577,7 @@ function FinishDialog({
             {pending ? <Loader2 className="animate-spin" /> : <Check />} Concluir
           </Button>
         </div>
-        <p className="mt-4 text-center text-[0.65rem] text-white/35">Sentiu dor? Interrompa o treino e procure um profissional.</p>
+        <p className="mt-4 text-center text-[0.65rem] text-white/55">Sentiu dor? Interrompa o treino e procure um profissional.</p>
       </div>
     </div>
   );

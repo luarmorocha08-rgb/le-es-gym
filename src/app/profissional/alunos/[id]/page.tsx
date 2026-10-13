@@ -71,7 +71,7 @@ export default async function TrainerStudentPage({ params }: PageProps<"/profiss
           {current && (
             <p className="mb-3 text-sm">
               Treino atual: <Link href={`/profissional/fichas/${current.id}`} className="font-medium underline">{current.title}</Link>{" "}
-              <span className="text-white/45">({PLAN_SOURCE_LABELS[current.source]})</span>
+              <span className="text-white/55">({PLAN_SOURCE_LABELS[current.source]})</span>
             </p>
           )}
           {data.plans.length === 0 ? (
@@ -83,7 +83,7 @@ export default async function TrainerStudentPage({ params }: PageProps<"/profiss
                   <Link href={`/profissional/fichas/${pl.id}`} className="flex items-center justify-between gap-3 py-2.5 text-sm hover:opacity-80">
                     <span>
                       {pl.title}
-                      <span className="block text-xs text-white/45">
+                      <span className="block text-xs text-white/55">
                         {PLAN_SOURCE_LABELS[pl.source]}
                         {pl.author_name && pl.source === "profissional" ? ` · ${pl.author_name}` : ""}
                         {pl.current_version > 0 ? ` · v${pl.current_version}` : ""}
@@ -112,11 +112,11 @@ export default async function TrainerStudentPage({ params }: PageProps<"/profiss
                 .filter(([, v]) => v)
                 .map(([k, v]) => (
                   <div key={k}>
-                    <dt className="text-xs text-white/45">{k}</dt>
+                    <dt className="text-xs text-white/55">{k}</dt>
                     <dd className="whitespace-pre-line text-white/80">{v}</dd>
                   </div>
                 ))}
-              <p className="text-xs text-white/40">Dado sensível informado pelo aluno. Em caso de dor ou condição clínica, oriente avaliação adequada.</p>
+              <p className="text-xs text-white/55">Dado sensível informado pelo aluno. Em caso de dor ou condição clínica, oriente avaliação adequada.</p>
             </dl>
           )}
         </Card>
@@ -152,7 +152,7 @@ export default async function TrainerStudentPage({ params }: PageProps<"/profiss
                   <div className="flex justify-between gap-3">
                     <span>
                       {s.plan_title ?? "Treino"} · {s.day_label}
-                      <span className="block text-xs text-white/45">{longDate.format(new Date(s.finished_at))}</span>
+                      <span className="block text-xs text-white/55">{longDate.format(new Date(s.finished_at))}</span>
                     </span>
                     <span className="text-right text-xs tabular-nums text-white/60">
                       {s.sets} {s.sets === 1 ? "série" : "séries"} · {kg.format(s.volume)} kg
@@ -190,7 +190,7 @@ export default async function TrainerStudentPage({ params }: PageProps<"/profiss
           ) : (
             <ul className="space-y-2 text-sm">
               {data.goals.map((g) => (
-                <li key={g.id} className={g.achieved_at ? "text-white/45 line-through" : ""}>
+                <li key={g.id} className={g.achieved_at ? "text-white/55 line-through" : ""}>
                   {g.title}
                   {g.target_value !== null && ` — ${g.target_value} ${g.unit ?? ""}`}
                 </li>

@@ -60,7 +60,7 @@ export function TrainerBottomNav({ pending }: { pending: number }) {
               <Link
                 href={item.href}
                 aria-current={on ? "page" : undefined}
-                className={cn("relative flex h-16 flex-col items-center justify-center gap-1 text-[0.6rem] font-medium uppercase tracking-[0.06em]", on ? "text-white" : "text-white/45")}
+                className={cn("relative flex h-16 flex-col items-center justify-center gap-1 text-[0.6rem] font-medium uppercase tracking-[0.06em]", on ? "text-white" : "text-white/55")}
               >
                 <span className={cn("grid h-7 w-12 place-items-center rounded-full", on && "bg-white text-black")}>
                   <item.icon className="size-[1.1rem]" aria-hidden />

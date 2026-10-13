@@ -53,7 +53,7 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/usuari
           <p className="mt-2 text-white/60">
             {u.email} {u.email_verified ? "· e-mail confirmado" : "· e-mail não confirmado"}
           </p>
-          <p className="text-sm text-white/45">Cadastro em {fmt.format(new Date(u.created_at))}</p>
+          <p className="text-sm text-white/55">Cadastro em {fmt.format(new Date(u.created_at))}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {u.professional_status && (
@@ -92,7 +92,7 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/usuari
             <Consent label="Dados de saúde (LGPD art. 11)" at={p?.health_data_consent_at ?? null} />
             <Consent label="Uso de IA" at={p?.ai_consent_at ?? null} />
           </dl>
-          <p className="mt-3 text-xs text-white/40">Informações de saúde são visíveis apenas ao aluno e aos profissionais vinculados.</p>
+          <p className="mt-3 text-xs text-white/55">Informações de saúde são visíveis apenas ao aluno e aos profissionais vinculados.</p>
         </section>
 
         <section aria-labelledby="vinculos" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
@@ -112,7 +112,7 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/usuari
                 <li key={l.id} className="flex items-center justify-between gap-3 py-2">
                   <span>
                     {l.trainer_id === u.id ? `Aluno: ${l.student_name}` : `Profissional: ${l.trainer_name}`}
-                    <span className="block text-xs text-white/45">desde {fmt.format(new Date(l.created_at))}</span>
+                    <span className="block text-xs text-white/55">desde {fmt.format(new Date(l.created_at))}</span>
                   </span>
                   <EndLinkButton trainerId={l.trainer_id} studentId={l.student_id} trainerName={l.trainer_name} studentName={l.student_name} />
                 </li>

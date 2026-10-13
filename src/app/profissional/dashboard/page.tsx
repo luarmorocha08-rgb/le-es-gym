@@ -53,16 +53,18 @@ export default async function TrainerDashboard() {
         </div>
       </div>
 
-      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
-          <Link key={s.label} href={s.href} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/30">
-            <dd className="font-display text-4xl leading-none tabular-nums">
-              <CountUp value={s.value} />
-            </dd>
-            <dt className="mt-2 text-[0.65rem] uppercase tracking-[0.14em] text-white/50">{s.label}</dt>
-          </Link>
+          <li key={s.label}>
+            <Link href={s.href} className="block h-full rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/30">
+              <span className="block font-display text-4xl leading-none tabular-nums">
+                <CountUp value={s.value} />
+              </span>
+              <span className="mt-2 block text-[0.65rem] uppercase tracking-[0.14em] text-white/55">{s.label}</span>
+            </Link>
+          </li>
         ))}
-      </dl>
+      </ul>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section aria-labelledby="atencao" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
@@ -78,7 +80,7 @@ export default async function TrainerDashboard() {
                   <Link href={`/profissional/solicitacoes/${r.id}`} className="flex items-center justify-between gap-3 py-3 hover:opacity-80">
                     <span className="text-sm">
                       {r.full_name}
-                      <span className="block text-xs text-white/45">desde {dayOnly.format(new Date(r.updated_at))}</span>
+                      <span className="block text-xs text-white/55">desde {dayOnly.format(new Date(r.updated_at))}</span>
                     </span>
                     <Badge className={r.status === "ajuste_solicitado" ? "border-white text-white" : ""}>{REQUEST_STATUS_LABELS[r.status]}</Badge>
                   </Link>
@@ -89,7 +91,7 @@ export default async function TrainerDashboard() {
                   <Link href={`/profissional/alunos/${s.student_id}`} className="flex items-center justify-between gap-3 py-3 hover:opacity-80">
                     <span className="text-sm">
                       {s.full_name}
-                      <span className="block text-xs text-white/45">
+                      <span className="block text-xs text-white/55">
                         {s.last_session ? `último treino em ${dayOnly.format(new Date(s.last_session))}` : "ainda não registrou treinos"}
                       </span>
                     </span>
@@ -114,9 +116,9 @@ export default async function TrainerDashboard() {
                   <Link href={`/profissional/alunos/${a.student_id}`} className="block py-3 hover:opacity-80">
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-sm">
-                        {a.full_name} <span className="text-white/45">· {a.plan_title ?? "Treino"} {a.day_label}</span>
+                        {a.full_name} <span className="text-white/55">· {a.plan_title ?? "Treino"} {a.day_label}</span>
                       </span>
-                      <span className="shrink-0 text-xs text-white/45">{dateTime.format(new Date(a.finished_at))}</span>
+                      <span className="shrink-0 text-xs text-white/55">{dateTime.format(new Date(a.finished_at))}</span>
                     </div>
                     {(a.perceived_effort || a.feedback) && (
                       <p className="mt-1 flex gap-2 text-xs text-white/60">

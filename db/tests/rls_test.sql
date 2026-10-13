@@ -394,6 +394,28 @@ delete from public.opening_hours where note = 'Teste';
 delete from public.site_content where key = 'aviso';
 reset role;
 
+-- LIMITE DE TENTATIVAS (Etapa 8) ----------------------------------------------
+do $$ begin
+  perform auth.consume_rate_limit('teste', 60, 2);
+  perform auth.consume_rate_limit('teste', 60, 2);
+  if auth.consume_rate_limit('teste', 60, 2) = 0 then
+    raise exception 'FALHA: terceira tentativa deveria ser bloqueada';
+  end if;
+  raise notice 'OK: limite de tentativas bloqueia acima do máximo';
+  perform auth.reset_rate_limit('teste');
+  if auth.consume_rate_limit('teste', 60, 2) <> 0 then
+    raise exception 'FALHA: reset deveria liberar';
+  end if;
+  raise notice 'OK: reset libera a chave';
+end $$;
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-0000000000a1');
+do $$ begin
+  perform tests.expect_error($q$select * from auth.rate_limits$q$, 'usuário não lê contadores de tentativas');
+  perform tests.expect_error($q$select auth.reset_rate_limit('login:email:x')$q$, 'usuário não zera contadores');
+end $$;
+reset role;
+
 -- ANÔNIMO ---------------------------------------------------------------------
 set role anon;
 select tests.login(null);

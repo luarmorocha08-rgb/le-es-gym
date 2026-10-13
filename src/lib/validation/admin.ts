@@ -73,7 +73,8 @@ export const announcementSchema = z.object({
     .string()
     .trim()
     .default("")
-    .refine((v) => v === "" || v.startsWith("/") || /^https:\/\/\S+$/.test(v), "Use um caminho do site (/contato) ou um link https://"),
+    // "/contato" sim; "//outro-site" e "/\\outro" não (seriam links externos disfarçados)
+    .refine((v) => v === "" || /^\/(?![\/\\])\S*$/.test(v) || /^https:\/\/\S+$/.test(v), "Use um caminho do site (/contato) ou um link https://"),
   endsAt: z
     .string()
     .trim()

@@ -48,7 +48,7 @@ export function NewRequestForm({
                     {t.full_name}
                     {t.linked && <span className="ml-2 text-xs normal-case tracking-normal text-white/55">· seu treinador</span>}
                   </span>
-                  {t.cref && <span className="block text-xs text-white/45">CREF {t.cref}</span>}
+                  {t.cref && <span className="block text-xs text-white/55">CREF {t.cref}</span>}
                   {t.specialties.length > 0 && <span className="mt-1 block text-xs text-white/60">{t.specialties.join(" · ")}</span>}
                   {t.bio && <span className="mt-2 line-clamp-3 block text-xs text-white/55">{t.bio}</span>}
                   {disabled && <span className="mt-1 block text-xs">Não está recebendo solicitações no momento.</span>}

@@ -22,7 +22,7 @@ export async function OpeningHours() {
                 {day.ranges.map((r) => (
                   <span key={`${r.from}-${r.to}`} className="block">
                     {r.from} – {r.to}
-                    {r.note ? <span className="ml-2 text-white/45">{r.note}</span> : null}
+                    {r.note ? <span className="ml-2 text-white/55">{r.note}</span> : null}
                   </span>
                 ))}
               </dd>

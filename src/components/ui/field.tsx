@@ -21,7 +21,7 @@ export function Field({
     <div className={className}>
       <Label htmlFor={id}>{label}</Label>
       <div className="mt-2">{children}</div>
-      {hint && !error && <p className="mt-1.5 text-xs text-white/45">{hint}</p>}
+      {hint && !error && <p className="mt-1.5 text-xs text-white/55">{hint}</p>}
       {error && (
         <p id={`${id}-erro`} className="mt-1.5 text-xs text-[var(--color-danger)]" role="alert">
           {error}

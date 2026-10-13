@@ -35,7 +35,7 @@ export default async function ExercisesPage({ searchParams }: PageProps<"/aluno/
       <form role="search" className="mb-8 grid gap-3 sm:grid-cols-[1fr_200px_200px_auto]">
         <label className="relative">
           <span className="sr-only">Buscar exercício</span>
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/40" aria-hidden />
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/55" aria-hidden />
           <Input name="q" defaultValue={q} placeholder="Buscar por nome ou músculo" className="pl-11" />
         </label>
         <label>

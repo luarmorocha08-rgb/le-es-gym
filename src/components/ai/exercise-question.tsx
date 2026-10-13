@@ -64,14 +64,14 @@ export function ExerciseQuestion({ slug, hasConsent }: { slug: string; hasConsen
       )}
       {answer && (
         <div className="mt-4 border-t border-white/10 pt-4" aria-live="polite">
-          <p className="text-[0.65rem] uppercase tracking-[0.14em] text-white/45">Resposta gerada por IA</p>
+          <p className="text-[0.65rem] uppercase tracking-[0.14em] text-white/55">Resposta gerada por IA</p>
           <p className="mt-2 whitespace-pre-line text-sm text-white/80">{answer.answer}</p>
           {answer.safety_note && (
             <p className="mt-3 flex gap-2 text-xs text-white/60">
               <ShieldAlert className="size-4 shrink-0" aria-hidden /> {answer.safety_note}
             </p>
           )}
-          <p className="mt-3 text-xs text-white/40">Orientação geral — não substitui a avaliação de um profissional.</p>
+          <p className="mt-3 text-xs text-white/55">Orientação geral — não substitui a avaliação de um profissional.</p>
         </div>
       )}
     </section>

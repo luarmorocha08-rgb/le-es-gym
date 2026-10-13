@@ -21,7 +21,7 @@ function TodayScreen() {
   return (
     <div className="space-y-3">
       <div className="rounded-2xl bg-white p-4 text-black">
-        <p className="font-heading text-[0.6rem] uppercase tracking-[0.2em] text-black/50">Treino B · Costas e bíceps</p>
+        <p className="font-heading text-[0.6rem] uppercase tracking-[0.2em] text-black/60">Treino B · Costas e bíceps</p>
         <p className="mt-1 font-display text-2xl uppercase leading-none">Pronto para mais uma conquista?</p>
         <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 font-heading text-[0.65rem] uppercase tracking-[0.18em] text-white">
           <Play className="size-3 fill-white" /> Iniciar treino
@@ -32,7 +32,7 @@ function TodayScreen() {
         <div className="mt-2 flex justify-between">
           {["S", "T", "Q", "Q", "S", "S", "D"].map((d, i) => (
             <div key={i} className="flex flex-col items-center gap-1.5">
-              <span className="text-[0.6rem] text-white/45">{d}</span>
+              <span className="text-[0.6rem] text-white/55">{d}</span>
               <span className={cn("size-6 rounded-full border", demoWeek[i] ? "border-white bg-white" : "border-white/20")} />
             </div>
           ))}
@@ -59,7 +59,7 @@ function ProgressScreen() {
           <div key={s.k} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
             <s.icon className="size-4 text-white/60" />
             <p className="mt-3 font-display text-2xl leading-none">{s.v}</p>
-            <p className="mt-1 text-[0.6rem] uppercase tracking-[0.15em] text-white/45">{s.k}</p>
+            <p className="mt-1 text-[0.6rem] uppercase tracking-[0.15em] text-white/55">{s.k}</p>
           </div>
         ))}
       </div>
@@ -94,7 +94,7 @@ function AiScreen() {
         <LionHead className="size-8 animate-pulse text-white" />
         <div>
           <p className="font-heading text-[0.6rem] uppercase tracking-[0.2em] text-white">Estruturando sua rotina…</p>
-          <p className="text-[0.6rem] text-white/45">Sugestão — sujeita a revisão profissional</p>
+          <p className="text-[0.6rem] text-white/55">Sugestão — sujeita a revisão profissional</p>
         </div>
       </div>
       <div className="rounded-2xl border border-white/10 p-3">
@@ -151,7 +151,7 @@ export function ExperiencePreview() {
           <h2 id="experiencia-title" className="font-display text-[clamp(2.8rem,7vw,6.5rem)] uppercase leading-[0.9]">
             Sua academia
             <br />
-            <span className="text-white/40">no bolso.</span>
+            <span className="text-white/55">no bolso.</span>
           </h2>
           <p className="mt-6 max-w-md text-white/60">
             Um portal do aluno pensado para o dia a dia do treino: rápido, claro e com botões grandes para usar entre
@@ -200,7 +200,7 @@ export function ExperiencePreview() {
                 <div className="absolute left-1/2 top-2.5 z-10 h-7 w-24 -translate-x-1/2 rounded-full bg-black" />
                 <div className="flex items-center justify-between px-5 pb-3 pt-12">
                   <div>
-                    <p className="text-[0.6rem] uppercase tracking-[0.2em] text-white/45">Boa tarde,</p>
+                    <p className="text-[0.6rem] uppercase tracking-[0.2em] text-white/55">Boa tarde,</p>
                     <p className="font-display text-xl uppercase leading-tight">Leão</p>
                   </div>
                   <span className="grid size-8 place-items-center rounded-full border border-white/15">
@@ -225,12 +225,12 @@ export function ExperiencePreview() {
                   className="absolute inset-x-3 bottom-3 flex justify-between rounded-3xl border border-white/10 bg-white/[0.06] px-5 py-3 backdrop-blur"
                 >
                   {[Home, CalendarCheck2, BrainCircuit, TrendingUp, User].map((Icon, i) => (
-                    <Icon key={i} className={cn("size-4", i === 0 ? "text-white" : "text-white/40")} />
+                    <Icon key={i} className={cn("size-4", i === 0 ? "text-white" : "text-white/55")} />
                   ))}
                 </nav>
               </div>
             </div>
-            <p className="mt-6 text-center font-heading text-[0.62rem] uppercase tracking-[0.24em] text-white/40">
+            <p className="mt-6 text-center font-heading text-[0.62rem] uppercase tracking-[0.24em] text-white/55">
               Demonstração da interface · dados ilustrativos
             </p>
           </div>

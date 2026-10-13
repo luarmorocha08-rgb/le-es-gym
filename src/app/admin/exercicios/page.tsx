@@ -39,7 +39,7 @@ export default async function AdminExercisesPage({ searchParams }: PageProps<"/a
       <form className="mb-6 flex flex-col gap-3 sm:flex-row" role="search">
         <label className="relative flex-1">
           <span className="sr-only">Buscar exercício</span>
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/40" aria-hidden />
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/55" aria-hidden />
           <Input name="q" defaultValue={q} placeholder="Buscar exercício" className="pl-11" />
         </label>
         <label className="sm:w-48">
@@ -73,7 +73,7 @@ export default async function AdminExercisesPage({ searchParams }: PageProps<"/a
                 <p className="mt-1 text-xs text-white/50">
                   {e.primary_muscles.map(muscleLabel).join(", ")} · {e.equipment} · {LEVEL_LABELS[e.level as Level]}
                 </p>
-                <p className="mt-2 text-xs text-white/40">
+                <p className="mt-2 text-xs text-white/55">
                   {e.usage === 0 ? "Não usado em fichas" : `Em ${e.usage} ${e.usage === 1 ? "ficha" : "fichas"}`}
                   {e.video_url && " · com vídeo"}
                 </p>

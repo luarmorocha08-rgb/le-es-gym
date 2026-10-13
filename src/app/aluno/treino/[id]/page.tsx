@@ -61,7 +61,7 @@ export default async function WorkoutPage({ params }: PageProps<"/aluno/treino/[
           <div key={s.label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
             <s.icon className="mx-auto size-5 text-white/60" aria-hidden />
             <dd className="mt-2 font-display text-3xl tabular-nums">{s.value}</dd>
-            <dt className="text-[0.65rem] uppercase tracking-[0.16em] text-white/45">{s.label}</dt>
+            <dt className="text-[0.65rem] uppercase tracking-[0.16em] text-white/55">{s.label}</dt>
           </div>
         ))}
       </dl>
@@ -72,7 +72,7 @@ export default async function WorkoutPage({ params }: PageProps<"/aluno/treino/[
             <li key={r.exercise_id} className="flex items-center justify-between gap-3 py-3">
               <div>
                 <p className="font-medium">{r.name}</p>
-                <p className="text-xs text-white/45">
+                <p className="text-xs text-white/55">
                   {r.sets} {r.sets === 1 ? "série" : "séries"} · {r.reps} reps
                 </p>
               </div>

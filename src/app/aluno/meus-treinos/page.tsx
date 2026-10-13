@@ -33,11 +33,11 @@ function PlanCard({ plan }: { plan: PlanSummary }) {
           {plan.source === "profissional" && plan.author_name ? ` · ${plan.author_name}` : ""} · {SPLIT_LABELS[plan.split_type as SplitType]} ·{" "}
           {plan.day_count} {plan.day_count === 1 ? "dia" : "dias"} · {plan.exercise_count} {plan.exercise_count === 1 ? "exercício" : "exercícios"}
         </p>
-        <p className="mt-0.5 text-xs text-white/35">
+        <p className="mt-0.5 text-xs text-white/55">
           {PLAN_STATUS_LABELS[plan.status] ?? plan.status} · atualizado em {dateFmt.format(new Date(plan.updated_at))}
         </p>
       </div>
-      <ChevronRight className="size-5 shrink-0 text-white/30 transition group-hover:translate-x-0.5 group-hover:text-white" />
+      <ChevronRight className="size-5 shrink-0 text-white/55 transition group-hover:translate-x-0.5 group-hover:text-white" />
     </Link>
   );
 }

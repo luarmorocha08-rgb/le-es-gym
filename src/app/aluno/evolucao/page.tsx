@@ -65,7 +65,7 @@ export default async function EvolutionPage() {
           <div key={s.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
             <s.icon className="size-4 text-white/50" aria-hidden />
             <dd className="mt-3 font-display text-3xl leading-none tabular-nums">{s.value}</dd>
-            <dt className="mt-1 text-[0.65rem] uppercase tracking-[0.14em] text-white/45">{s.label}</dt>
+            <dt className="mt-1 text-[0.65rem] uppercase tracking-[0.14em] text-white/55">{s.label}</dt>
           </div>
         ))}
       </dl>
@@ -107,7 +107,7 @@ export default async function EvolutionPage() {
                 <table className="w-full text-sm">
                   <caption className="sr-only">Maior carga por exercício</caption>
                   <thead>
-                    <tr className="text-left text-xs text-white/40">
+                    <tr className="text-left text-xs text-white/55">
                       <th className="pb-2 font-normal">Exercício</th>
                       <th className="pb-2 text-right font-normal">Carga</th>
                       <th className="pb-2 text-right font-normal">Data</th>
@@ -136,7 +136,7 @@ export default async function EvolutionPage() {
                         <span className="block text-sm">
                           {s.plan_title ?? "Treino"} · {s.day_label}
                         </span>
-                        <span className="block text-xs text-white/45">{longDate.format(new Date(s.finished_at))}</span>
+                        <span className="block text-xs text-white/55">{longDate.format(new Date(s.finished_at))}</span>
                       </span>
                       <span className="text-right text-xs tabular-nums text-white/60">
                         {s.sets} {s.sets === 1 ? "série" : "séries"}
@@ -175,7 +175,7 @@ export default async function EvolutionPage() {
           </Alert>
         ) : (
           <>
-            <p className="mb-4 flex items-center gap-2 text-xs text-white/45">
+            <p className="mb-4 flex items-center gap-2 text-xs text-white/55">
               <Lock className="size-3.5" /> Visível só para você — e para seu treinador apenas nos registros que você compartilhar. Fotos de progresso chegam em breve.
             </p>
             {weights.length >= 2 && (
@@ -193,7 +193,7 @@ export default async function EvolutionPage() {
                 <table className="w-full min-w-[560px] text-sm">
                   <caption className="sr-only">Registros de medidas</caption>
                   <thead>
-                    <tr className="text-left text-xs text-white/40">
+                    <tr className="text-left text-xs text-white/55">
                       <th className="pb-2 font-normal">Data</th>
                       <th className="pb-2 font-normal">Peso</th>
                       <th className="pb-2 font-normal">% gord.</th>
@@ -230,7 +230,7 @@ export default async function EvolutionPage() {
           </>
         )}
       </Section>
-      <p className="text-center text-xs text-white/35">
+      <p className="text-center text-xs text-white/55">
         Respeite seu corpo: dor persistente, cansaço excessivo ou queda de desempenho são sinais para conversar com um profissional.
       </p>
     </div>

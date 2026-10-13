@@ -11,7 +11,11 @@ const appServer = {
   url: baseURL,
   reuseExistingServer: !process.env.CI,
   timeout: 240_000,
-  env: aiMock ? { ANTHROPIC_API_KEY: "e2e-mock", ANTHROPIC_BASE_URL: `http://127.0.0.1:${mockPort}` } : undefined,
+  env: {
+    // a suíte cria dezenas de contas do mesmo IP; limites por e-mail seguem valendo
+    RATE_LIMIT_IP_MULTIPLIER: "50",
+    ...(aiMock ? { ANTHROPIC_API_KEY: "e2e-mock", ANTHROPIC_BASE_URL: `http://127.0.0.1:${mockPort}` } : {}),
+  },
 };
 const mockServer = {
   command: "node e2e/mock-anthropic.mjs",
@@ -34,7 +38,7 @@ export default defineConfig({
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] }, testIgnore: /admin-panel/ },
     // fluxo de conta roda só no desktop (cria usuários reais no banco de teste)
-    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /account-flow|student-portal|trainer-portal|ai-|admin-panel/ },
+    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /account-flow|student-portal|trainer-portal|ai-|admin-panel|a11y|offline-workout|pwa-seo|security/ },
     // altera o site público (horários e aviso): roda depois dos demais
     { name: "admin", use: { ...devices["Desktop Chrome"] }, testMatch: /admin-panel/, dependencies: ["desktop", "mobile"] },
   ],

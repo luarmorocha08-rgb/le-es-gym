@@ -34,7 +34,7 @@ export default async function AdminContentPage() {
         </div>
         <AnnouncementForm initial={initial} />
         {row && (
-          <p className="mt-4 text-xs text-white/40">
+          <p className="mt-4 text-xs text-white/55">
             Última alteração em {fmt.format(new Date(row.updated_at))}
             {row.updated_by_name && ` por ${row.updated_by_name}`}
           </p>

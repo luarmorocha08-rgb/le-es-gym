@@ -147,7 +147,7 @@ export function ReviewProfessionalForm({ userId, status, name }: { userId: strin
 // Papéis e vínculos
 // ---------------------------------------------------------------------------
 export function AdminRoleButton({ userId, name, isAdmin, isSelf }: { userId: string; name: string; isAdmin: boolean; isSelf: boolean }) {
-  if (isSelf) return <p className="text-xs text-white/45">Você não pode remover o próprio acesso.</p>;
+  if (isSelf) return <p className="text-xs text-white/55">Você não pode remover o próprio acesso.</p>;
   return isAdmin ? (
     <ConfirmButton
       label="Remover administrador"

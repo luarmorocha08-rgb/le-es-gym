@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Connectivity } from "@/components/layout/connectivity";
 import { Anton, Inter, Oswald } from "next/font/google";
 import { gym } from "@/content/gym";
 import "./globals.css";
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Pular para o conteúdo
         </a>
+        <Connectivity />
         {children}
       </body>
     </html>

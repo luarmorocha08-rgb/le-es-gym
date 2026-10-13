@@ -14,7 +14,7 @@ export function TrainerNotes({ studentId, notes }: { studentId: string; notes: {
   const [removing, start] = useTransition();
   return (
     <div>
-      <p className="mb-3 flex items-center gap-2 text-xs text-white/45">
+      <p className="mb-3 flex items-center gap-2 text-xs text-white/55">
         <Lock className="size-3.5" /> Visíveis somente para você. O aluno não tem acesso.
       </p>
       <form onSubmit={onSubmit} className="space-y-2">
@@ -34,9 +34,9 @@ export function TrainerNotes({ studentId, notes }: { studentId: string; notes: {
             <li key={n.id} className="flex gap-3 rounded-xl border border-white/10 p-3 text-sm">
               <div className="min-w-0 flex-1">
                 <p className="whitespace-pre-line text-white/80">{n.body}</p>
-                <p className="mt-1 text-[0.65rem] text-white/40">{fmt.format(new Date(n.created_at))}</p>
+                <p className="mt-1 text-[0.65rem] text-white/55">{fmt.format(new Date(n.created_at))}</p>
               </div>
-              <button type="button" disabled={removing} onClick={() => start(() => deleteNote(n.id, studentId))} className="self-start p-1 text-white/40 hover:text-[var(--color-danger)]" aria-label="Excluir observação">
+              <button type="button" disabled={removing} onClick={() => start(() => deleteNote(n.id, studentId))} className="self-start p-1 text-white/55 hover:text-[var(--color-danger)]" aria-label="Excluir observação">
                 <Trash2 className="size-4" />
               </button>
             </li>

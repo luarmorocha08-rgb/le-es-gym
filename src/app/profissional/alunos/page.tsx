@@ -42,7 +42,7 @@ export default async function StudentsPage({ searchParams }: PageProps<"/profiss
       <form role="search" className="mb-6 grid gap-3 sm:grid-cols-[1fr_200px_200px_auto]">
         <label className="relative">
           <span className="sr-only">Buscar aluno</span>
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/40" aria-hidden />
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/55" aria-hidden />
           <Input name="q" defaultValue={q} placeholder="Buscar por nome" className="pl-11" />
         </label>
         <label>
@@ -101,9 +101,9 @@ export default async function StudentsPage({ searchParams }: PageProps<"/profiss
                       {s.sessions_28d}
                       {target ? `/${target}` : ""} treinos em 4 sem.
                     </p>
-                    <p className="text-white/40">{s.last_session ? `último ${dayFmt.format(new Date(s.last_session))}` : "sem treinos"}</p>
+                    <p className="text-white/55">{s.last_session ? `último ${dayFmt.format(new Date(s.last_session))}` : "sem treinos"}</p>
                   </div>
-                  <ChevronRight className="size-4 text-white/30 group-hover:text-white" />
+                  <ChevronRight className="size-4 text-white/55 group-hover:text-white" />
                 </Link>
               </li>
             );

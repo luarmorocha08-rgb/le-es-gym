@@ -52,14 +52,14 @@ export function SuggestionView({ suggestion: s, audience }: { suggestion: Sugges
               {d.exercises.map((e, i) => (
                 <li key={e.slug} className="flex justify-between gap-3 py-2.5 text-sm">
                   <span>
-                    <span className="mr-2 text-white/35">{i + 1}.</span>
+                    <span className="mr-2 text-white/55">{i + 1}.</span>
                     {e.name}
-                    <span className="block text-xs text-white/45">{e.primary_muscles.map(muscleLabel).join(", ")}</span>
+                    <span className="block text-xs text-white/55">{e.primary_muscles.map(muscleLabel).join(", ")}</span>
                     {e.notes && <span className="block text-xs italic text-white/60">{e.notes}</span>}
                   </span>
                   <span className="shrink-0 text-right tabular-nums">
                     {e.sets} × {e.reps}
-                    <span className="block text-xs text-white/45">{rest(e.rest_seconds)}</span>
+                    <span className="block text-xs text-white/55">{rest(e.rest_seconds)}</span>
                   </span>
                 </li>
               ))}
@@ -90,11 +90,11 @@ export function SuggestionView({ suggestion: s, audience }: { suggestion: Sugges
       </div>
 
       {s.dropped_exercises.length > 0 && (
-        <p className="flex items-center gap-2 text-xs text-white/45">
+        <p className="flex items-center gap-2 text-xs text-white/55">
           <AlertTriangle className="size-3.5" /> {s.dropped_exercises.length} exercício(s) fora da biblioteca da academia foram removidos automaticamente.
         </p>
       )}
-      <p className="text-xs text-white/40">
+      <p className="text-xs text-white/55">
         {audience === "aluno"
           ? "Sugestão gerada automaticamente. Não é prescrição profissional, não promete resultados e não substitui avaliação. Em caso de dor, interrompa e procure orientação."
           : "Sugestão gerada automaticamente com base nos dados autorizados do aluno. Revise, ajuste e só publique o que você aprovar."}

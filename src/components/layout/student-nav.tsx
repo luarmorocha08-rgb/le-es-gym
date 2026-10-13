@@ -69,7 +69,7 @@ export function StudentBottomNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex h-16 flex-col items-center justify-center gap-1 text-[0.62rem] font-medium uppercase tracking-[0.08em] transition",
-                  active ? "text-white" : "text-white/45",
+                  active ? "text-white" : "text-white/55",
                 )}
               >
                 <span className={cn("grid h-7 w-12 place-items-center rounded-full transition", active && "bg-white text-black")}>

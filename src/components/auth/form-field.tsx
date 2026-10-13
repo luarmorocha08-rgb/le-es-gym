@@ -16,7 +16,7 @@ export function FormField({
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} name={name} aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...props} />
       {hint && !error && (
-        <p id={`${id}-dica`} className="text-xs text-white/45">
+        <p id={`${id}-dica`} className="text-xs text-white/55">
           {hint}
         </p>
       )}

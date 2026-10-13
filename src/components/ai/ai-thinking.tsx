@@ -48,7 +48,7 @@ export function AiThinking({ steps = STEPS }: { steps?: string[] }) {
           </motion.p>
         </AnimatePresence>
       </div>
-      <p className="mt-3 text-xs text-white/45">Isso pode levar até um minuto.</p>
+      <p className="mt-3 text-xs text-white/55">Isso pode levar até um minuto.</p>
     </div>
   );
 }

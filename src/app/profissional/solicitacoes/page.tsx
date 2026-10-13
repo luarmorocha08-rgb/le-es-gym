@@ -32,7 +32,7 @@ function Row({ r }: { r: TrainerRequestRow }) {
           </p>
         </div>
         <Badge>{REQUEST_STATUS_LABELS[r.status]}</Badge>
-        <ChevronRight className="size-4 text-white/30 group-hover:text-white" />
+        <ChevronRight className="size-4 text-white/55 group-hover:text-white" />
       </Link>
     </li>
   );

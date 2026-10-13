@@ -36,7 +36,7 @@ function DataTable({ caption, points, unit }: { caption: string; points: Point[]
       <table className="mt-2 w-full text-left tabular-nums">
         <caption className="sr-only">{caption}</caption>
         <thead>
-          <tr className="text-white/40">
+          <tr className="text-white/55">
             <th className="py-1 font-normal">Período</th>
             <th className="py-1 text-right font-normal">Valor ({unit})</th>
           </tr>
@@ -103,7 +103,7 @@ export function BarChart({
 
   return (
     <figure className="relative">
-      <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full overflow-visible" role="img" aria-label={title}>
+      <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full overflow-visible" role="group" aria-label={title}>
         {ticks.map((t) => {
           const y = pad.top + innerH - (t / max) * innerH;
           return (
@@ -149,6 +149,7 @@ export function BarChart({
                 height={innerH}
                 fill="transparent"
                 tabIndex={0}
+                role="img"
                 aria-label={`${p.detail ?? p.label}: ${formatValue(p.value)}`}
                 onMouseEnter={() => setHover(i)}
                 onMouseLeave={() => setHover(null)}
@@ -224,7 +225,7 @@ export function LineChart({
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="h-auto w-full overflow-visible"
-        role="img"
+        role="group"
         aria-label={title}
         onMouseLeave={() => setHover(null)}
         onMouseMove={(e) => {
@@ -292,6 +293,7 @@ export function LineChart({
             r={10}
             fill="transparent"
             tabIndex={0}
+            role="img"
             aria-label={`${points[i].detail ?? points[i].label}: ${compact(points[i].value)} ${unit}`}
             onFocus={() => setHover(i)}
             onBlur={() => setHover(null)}
@@ -340,7 +342,7 @@ export function ProgressRing({ value, max, size = 88, label }: { value: number; 
       </svg>
       <span className="absolute font-display text-2xl tabular-nums">
         {value}
-        <span className="text-sm text-white/45">/{max}</span>
+        <span className="text-sm text-white/55">/{max}</span>
       </span>
     </div>
   );

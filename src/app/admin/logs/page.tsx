@@ -116,7 +116,7 @@ export default async function AdminLogsPage({ searchParams }: PageProps<"/admin/
                     {KIND_LABELS[r.kind] ?? r.kind}
                     {r.error_message && r.status !== "sucesso" && <span className="text-xs text-white/50">({r.error_message})</span>}
                   </span>
-                  <span className="text-xs text-white/45">
+                  <span className="text-xs text-white/55">
                     {r.user_name ?? "usuário removido"} · {r.latency_ms ? `${(r.latency_ms / 1000).toFixed(1)} s` : "—"} · {fmt.format(new Date(r.created_at))}
                   </span>
                 </li>
@@ -171,7 +171,7 @@ export default async function AdminLogsPage({ searchParams }: PageProps<"/admin/
           {page < pages ? <Link href={href(page + 1)} className="hover:underline">Próxima →</Link> : <span />}
         </nav>
       )}
-      <p className="mt-6 text-xs text-white/40">Tipos de registro: {Object.values(ENTITY_LABELS).join(", ")}.</p>
+      <p className="mt-6 text-xs text-white/55">Tipos de registro: {Object.values(ENTITY_LABELS).join(", ")}.</p>
     </div>
   );
 }

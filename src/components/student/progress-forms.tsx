@@ -52,13 +52,13 @@ export function GoalItem({ goal }: { goal: { id: string; title: string; target_v
         {done && <Check className="size-4" />}
       </button>
       <div className="min-w-0 flex-1">
-        <p className={cn("text-sm", done && "text-white/45 line-through")}>{goal.title}</p>
-        <p className="text-xs text-white/40">
+        <p className={cn("text-sm", done && "text-white/55 line-through")}>{goal.title}</p>
+        <p className="text-xs text-white/55">
           {goal.target_value !== null && `Alvo: ${goal.target_value} ${goal.unit ?? ""}`}
           {goal.due_on && ` · até ${new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(new Date(`${goal.due_on}T00:00:00Z`))}`}
         </p>
       </div>
-      <button type="button" onClick={() => start(async () => void (await deleteGoal(goal.id)))} className="p-2 text-white/40 hover:text-[var(--color-danger)]" aria-label={`Excluir meta ${goal.title}`}>
+      <button type="button" onClick={() => start(async () => void (await deleteGoal(goal.id)))} className="p-2 text-white/55 hover:text-[var(--color-danger)]" aria-label={`Excluir meta ${goal.title}`}>
         <Trash2 className="size-4" />
       </button>
     </li>
@@ -105,7 +105,7 @@ export function ProgressForm() {
 export function DeleteProgress({ id }: { id: string }) {
   const [pending, start] = useTransition();
   return (
-    <button type="button" disabled={pending} onClick={() => start(async () => void (await deleteProgressRecord(id)))} className="p-2 text-white/40 hover:text-[var(--color-danger)]" aria-label="Excluir registro">
+    <button type="button" disabled={pending} onClick={() => start(async () => void (await deleteProgressRecord(id)))} className="p-2 text-white/55 hover:text-[var(--color-danger)]" aria-label="Excluir registro">
       <Trash2 className="size-4" />
     </button>
   );

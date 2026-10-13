@@ -28,7 +28,7 @@ async function TrainerList() {
   if (result.data.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-white/15 p-10 text-center">
-        <UserRound className="mx-auto size-8 text-white/40" aria-hidden />
+        <UserRound className="mx-auto size-8 text-white/55" aria-hidden />
         <p className="mt-4 font-heading uppercase tracking-[0.14em]">Perfis em breve</p>
         <p className="mt-2 text-sm text-white/55">Nossos profissionais estão finalizando seus perfis na plataforma.</p>
       </div>
@@ -43,7 +43,7 @@ async function TrainerList() {
             {t.full_name.charAt(0)}
           </span>
           <h2 className="mt-6 font-heading text-2xl uppercase tracking-[0.04em]">{t.full_name}</h2>
-          {t.cref && <p className="mt-1 text-xs text-white/45">CREF {t.cref}</p>}
+          {t.cref && <p className="mt-1 text-xs text-white/55">CREF {t.cref}</p>}
           {t.bio && <p className="mt-4 text-sm leading-relaxed text-white/65">{t.bio}</p>}
           {t.specialties.length > 0 && (
             <div className="mt-5 flex flex-wrap gap-2">
@@ -61,7 +61,7 @@ async function TrainerList() {
 export default function TeamPage() {
   return (
     <>
-      <PageHero eyebrow="Equipe" title={<>Quem treina <span className="text-white/40">os leões.</span></>}>
+      <PageHero eyebrow="Equipe" title={<>Quem treina <span className="text-white/55">os leões.</span></>}>
         Profissionais de educação física prontos para montar e acompanhar o seu treino.
       </PageHero>
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-10">

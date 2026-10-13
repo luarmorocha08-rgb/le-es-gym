@@ -65,7 +65,7 @@ export default async function AdminLinksPage({ searchParams }: PageProps<"/admin
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-white/10">
             <table className="w-full min-w-[600px] text-left text-sm">
-              <thead className="bg-white/[0.03] text-xs uppercase tracking-[0.12em] text-white/45">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-[0.12em] text-white/55">
                 <tr>
                   <th className="px-4 py-3 font-normal">Profissional</th>
                   <th className="px-4 py-3 font-normal">Aluno</th>

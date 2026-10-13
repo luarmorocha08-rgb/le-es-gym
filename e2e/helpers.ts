@@ -1,4 +1,4 @@
-import type { Browser } from "@playwright/test";
+import type { Browser, BrowserContextOptions } from "@playwright/test";
 import pg from "pg";
 
 export type TestUser = { name: string; email: string; password: string };
@@ -8,8 +8,10 @@ export function uniqueTag(stamp: number) {
   return String(stamp).slice(-6).replace(/\d/g, (d) => "abcdefghij"[Number(d)]);
 }
 
-export async function signup(browser: Browser, user: TestUser, professional: boolean) {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+export async function signup(browser: Browser, user: TestUser, professional: boolean, options: BrowserContextOptions = {}) {
+  // contexto explícito (exigido pelo axe-core); feche com page.context().close()
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, ...options });
+  const page = await context.newPage();
   await page.goto(professional ? "/cadastro?perfil=profissional" : "/cadastro");
   await page.getByLabel("Nome completo").fill(user.name);
   await page.getByLabel("E-mail").fill(user.email);

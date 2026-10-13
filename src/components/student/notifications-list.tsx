@@ -37,7 +37,7 @@ export function NotificationsList({ items, compact = false }: { items: N[]; comp
                 <span className="min-w-0">
                   <span className={cn("block text-sm", !n.read_at && "font-semibold")}>{n.title}</span>
                   {n.body && <span className="block text-xs text-white/55">{n.body}</span>}
-                  <span className="block text-[0.65rem] text-white/35">{fmt.format(new Date(n.created_at))}</span>
+                  <span className="block text-[0.65rem] text-white/55">{fmt.format(new Date(n.created_at))}</span>
                 </span>
               </>
             );

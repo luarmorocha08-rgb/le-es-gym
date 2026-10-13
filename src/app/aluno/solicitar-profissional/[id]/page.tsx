@@ -47,7 +47,7 @@ export default async function RequestPage({ params }: PageProps<"/aluno/solicita
             return (
               <li key={s} className="flex flex-col gap-2" aria-current={current ? "step" : undefined}>
                 <span className={cn("h-1.5 rounded-full", done ? "bg-white" : "bg-white/10")} />
-                <span className={cn("text-[0.6rem] uppercase leading-tight tracking-[0.08em] sm:text-[0.65rem]", current ? "text-white" : "text-white/40")}>
+                <span className={cn("text-[0.6rem] uppercase leading-tight tracking-[0.08em] sm:text-[0.65rem]", current ? "text-white" : "text-white/55")}>
                   {REQUEST_STATUS_LABELS[s]}
                 </span>
               </li>
@@ -85,12 +85,12 @@ export default async function RequestPage({ params }: PageProps<"/aluno/solicita
               {messages.map((m) => (
                 <li key={m.id} className={cn("max-w-[85%] rounded-2xl px-4 py-2.5 text-sm", m.mine ? "ml-auto rounded-br-md bg-white text-black" : "rounded-bl-md border border-white/10 bg-white/[0.04]")}>
                   <p className="whitespace-pre-line">{m.body}</p>
-                  <p className={cn("mt-1 text-[0.6rem]", m.mine ? "text-black/45" : "text-white/40")}>{fmt.format(new Date(m.created_at))}</p>
+                  <p className={cn("mt-1 text-[0.6rem]", m.mine ? "text-black/60" : "text-white/55")}>{fmt.format(new Date(m.created_at))}</p>
                 </li>
               ))}
             </ul>
           )}
-          {closed ? <p className="text-xs text-white/40">Solicitação encerrada.</p> : <MessageForm requestId={request.id} />}
+          {closed ? <p className="text-xs text-white/55">Solicitação encerrada.</p> : <MessageForm requestId={request.id} />}
         </section>
         <section aria-labelledby="historico" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
           <h2 id="historico" className="eyebrow mb-4">
@@ -103,7 +103,7 @@ export default async function RequestPage({ params }: PageProps<"/aluno/solicita
                 <div>
                   <p>{REQUEST_STATUS_LABELS[e.to_status]}</p>
                   {e.note && <p className="text-xs text-white/55">“{e.note}”</p>}
-                  <p className="text-[0.65rem] text-white/35">
+                  <p className="text-[0.65rem] text-white/55">
                     {fmt.format(new Date(e.created_at))} · {e.mine ? "você" : "profissional"}
                   </p>
                 </div>

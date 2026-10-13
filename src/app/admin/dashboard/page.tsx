@@ -55,9 +55,9 @@ export default async function AdminDashboard() {
             {pendingPros.map((p) => (
               <li key={p.user_id} className="flex justify-between gap-3 py-2.5">
                 <span>
-                  {p.full_name} <span className="text-white/45">· CREF {p.cref ?? "não informado"}</span>
+                  {p.full_name} <span className="text-white/55">· CREF {p.cref ?? "não informado"}</span>
                 </span>
-                <span className="text-white/45">{dateFmt.format(new Date(p.created_at))}</span>
+                <span className="text-white/55">{dateFmt.format(new Date(p.created_at))}</span>
               </li>
             ))}
           </ul>

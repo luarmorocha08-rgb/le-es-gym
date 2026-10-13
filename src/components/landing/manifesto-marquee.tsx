@@ -17,7 +17,7 @@ export function ManifestoMarquee() {
             {items.map((item) => (
               <span key={item} className="flex items-center gap-10">
                 <span className="font-display text-3xl uppercase tracking-wide text-white/85 sm:text-5xl">{item}</span>
-                <LionHead className="size-7 text-white/30 sm:size-9" />
+                <LionHead className="size-7 text-white/55 sm:size-9" />
               </span>
             ))}
           </div>

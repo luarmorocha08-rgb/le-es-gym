@@ -97,7 +97,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-white/[0.07]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-white/40 sm:flex-row sm:justify-between sm:px-6 lg:px-10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-white/55 sm:flex-row sm:justify-between sm:px-6 lg:px-10">
           <p>© {new Date().getFullYear()} {gym.name}. Todos os direitos reservados.</p>
           <p>{gym.links.instagramHandle} · Santos/SP</p>
         </div>

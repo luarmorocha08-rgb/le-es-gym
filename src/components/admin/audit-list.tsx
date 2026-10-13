@@ -54,7 +54,7 @@ export function AuditList({ rows, empty }: { rows: AuditRow[]; empty: string }) 
             {describe(r)}
             {typeof r.metadata?.note === "string" && <span className="block text-xs italic text-white/50">“{r.metadata.note}”</span>}
           </span>
-          <span className="shrink-0 text-xs text-white/45">
+          <span className="shrink-0 text-xs text-white/55">
             {r.actor_id ? (
               <Link href={`/admin/usuarios/${r.actor_id}`} className="hover:text-white">
                 {r.actor_name ?? "usuário removido"}
