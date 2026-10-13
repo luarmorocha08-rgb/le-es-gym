@@ -42,6 +42,8 @@ try {
     await client.query(await readFile(path.join(root, "db/seed.sql"), "utf8"));
     console.log("→ seed.sql ok");
   }
+  // o controle de migrations não deve ser visível aos papéis da aplicação
+  await client.query("revoke all on public.schema_migrations from anon, authenticated");
   console.log("Banco atualizado.");
 } finally {
   await client.end();
