@@ -102,6 +102,10 @@ do $$ begin
   perform tests.expect_count($q$select 1 from public.public_trainers$q$, 0, 'nenhum profissional público antes da aprovação');
   perform tests.expect_error($q$insert into public.workout_requests (student_id, trainer_id, goal) values ('00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000f1', 'hipertrofia')$q$, 'solicitar a profissional não aprovado');
 end $$;
+do $$ begin
+  perform tests.expect_error($q$insert into public.student_health_info (student_id, limitations) values ('00000000-0000-0000-0000-0000000000a1', 'x')$q$, 'gravar saúde sem consentimento');
+end $$;
+update public.profiles set health_data_consent_at = now() where id = '00000000-0000-0000-0000-0000000000a1';
 insert into public.student_health_info (student_id, limitations) values ('00000000-0000-0000-0000-0000000000a1', 'Desconforto no ombro direito');
 reset role;
 
@@ -135,8 +139,12 @@ select tests.login('00000000-0000-0000-0000-0000000000a1');
 do $$ begin
   perform tests.expect_count($q$select 1 from public.public_trainers$q$, 1, 'profissional público visível');
 end $$;
-insert into public.workout_requests (id, student_id, trainer_id, goal, days_per_week, details, share_health_info)
-values ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000f1', 'hipertrofia', 4, 'Quero focar em pernas', true);
+do $$ declare _id uuid; begin
+  insert into public.workout_requests (id, student_id, trainer_id, goal, days_per_week, details, share_health_info)
+  values ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000f1', 'hipertrofia', 4, 'Quero focar em pernas', true)
+  returning id into _id;
+  raise notice 'OK: aluno cria solicitação com RETURNING';
+end $$;
 do $$ begin
   perform tests.expect_error($q$update public.workout_requests set status = 'concluido' where id = '11111111-1111-1111-1111-111111111111'$q$, 'aluno mudar status direto');
   perform tests.expect_error($q$select public.transition_request('11111111-1111-1111-1111-111111111111', 'entregue')$q$, 'aluno marcar como entregue');
@@ -230,9 +238,13 @@ do $$ declare _n int; begin
   raise notice 'OK: aluno não altera exercícios publicados (0 linhas)';
 end $$;
 
--- ficha própria do aluno
-insert into public.workout_plans (id, student_id, author_id, source, title, status, split_type)
-values ('44444444-4444-4444-4444-444444444444', '00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000a1', 'aluno', 'Meu treino', 'ativo', 'FULL_BODY');
+-- ficha própria do aluno (com RETURNING, como o app faz)
+do $$ declare _id uuid; begin
+  insert into public.workout_plans (id, student_id, author_id, source, title, status, split_type)
+  values ('44444444-4444-4444-4444-444444444444', '00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000a1', 'aluno', 'Meu treino', 'ativo', 'FULL_BODY')
+  returning id into _id;
+  raise notice 'OK: aluno cria ficha própria com RETURNING';
+end $$;
 do $$ begin
   perform tests.expect_error($q$select public.publish_workout_plan('44444444-4444-4444-4444-444444444444')$q$, 'aluno publicar a própria ficha');
   perform tests.expect_error($q$update public.workout_plans set source = 'profissional' where id = '44444444-4444-4444-4444-444444444444'$q$, 'aluno trocar origem da ficha');
@@ -298,6 +310,17 @@ select tests.login('00000000-0000-0000-0000-0000000000f1');
 do $$ begin
   perform tests.expect_count($q$select 1 from public.workout_sessions$q$, 0, 'suspenso perde acesso às sessões');
   perform tests.expect_count($q$select 1 from public.student_health_info$q$, 0, 'suspenso perde acesso à saúde');
+end $$;
+reset role;
+
+-- Revogar consentimento apaga dados de saúde ---------------------------------
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-0000000000a2');
+update public.profiles set health_data_consent_at = now() where id = '00000000-0000-0000-0000-0000000000a2';
+insert into public.student_health_info (student_id, limitations) values ('00000000-0000-0000-0000-0000000000a2', 'Joelho');
+update public.profiles set health_data_consent_at = null where id = '00000000-0000-0000-0000-0000000000a2';
+do $$ begin
+  perform tests.expect_count($q$select 1 from public.student_health_info$q$, 0, 'revogar consentimento apaga saúde');
 end $$;
 reset role;
 

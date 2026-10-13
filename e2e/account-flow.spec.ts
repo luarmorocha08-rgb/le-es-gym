@@ -23,7 +23,7 @@ test("aluno se cadastra, cai no portal, sai e entra de novo", async ({ page }) =
   await signup(page, student);
   await expect(page).toHaveURL(/\/aluno\/dashboard/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Aluna");
-  await expect(page.getByText("Treinos concluídos")).toBeVisible();
+  await expect(page.getByText("Treinos concluídos", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Sair da conta" }).click();
   await expect(page).toHaveURL(/\/login/);

@@ -12,10 +12,16 @@ export function PortalShell({
   area,
   viewer,
   children,
+  nav,
+  bottomNav,
 }: {
   area: keyof typeof areaLabel;
   viewer: Viewer;
   children: ReactNode;
+  /** Navegação secundária da área (desktop) */
+  nav?: ReactNode;
+  /** Navegação inferior (mobile) */
+  bottomNav?: ReactNode;
 }) {
   const areas = [
     { key: "aluno", href: "/aluno/dashboard", show: true },
@@ -58,10 +64,12 @@ export function PortalShell({
             </form>
           </div>
         </div>
+        {nav}
       </header>
-      <main id="conteudo" className="mx-auto max-w-6xl px-4 pb-24 pt-10 sm:px-6">
+      <main id="conteudo" className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pt-10 md:pb-24">
         {children}
       </main>
+      {bottomNav}
     </div>
   );
 }

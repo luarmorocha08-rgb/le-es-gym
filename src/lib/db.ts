@@ -1,21 +1,49 @@
 import "server-only";
-import { Pool, type PoolClient, type QueryResultRow } from "pg";
+import { Pool, types, type PoolClient, type QueryResultRow } from "pg";
 import { getDatabaseUrl } from "@/lib/env";
+
+/**
+ * Parsers do pool da aplicação: datas chegam como string ISO (serializáveis
+ * e com tipagem honesta) e `date` fica "YYYY-MM-DD". O Better Auth usa um
+ * pool separado com os parsers padrão (ele espera objetos Date).
+ */
+const appTypes = {
+  getTypeParser(oid: number, format?: "text" | "binary") {
+    if (oid === types.builtins.TIMESTAMPTZ) return (v: string) => new Date(v).toISOString();
+    if (oid === types.builtins.TIMESTAMP) return (v: string) => new Date(`${v}Z`).toISOString();
+    if (oid === types.builtins.DATE) return (v: string) => v;
+    return types.getTypeParser(oid, format as "text");
+  },
+};
 
 declare global {
   var __leoesPool: Pool | undefined;
+  var __leoesAuthPool: Pool | undefined;
 }
 
-/** Pool único por processo (reaproveitado entre recargas em desenvolvimento). */
-export function getPool(): Pool | null {
-  const url = getDatabaseUrl();
-  if (!url) return null;
-  globalThis.__leoesPool ??= new Pool({
+function createPool(url: string, custom: boolean) {
+  return new Pool({
     connectionString: url,
     max: Number(process.env.DATABASE_POOL_MAX ?? 10),
     idleTimeoutMillis: 30_000,
+    ...(custom ? { types: appTypes } : {}),
   });
+}
+
+/** Pool da aplicação, único por processo (reaproveitado entre recargas em dev). */
+export function getPool(): Pool | null {
+  const url = getDatabaseUrl();
+  if (!url) return null;
+  globalThis.__leoesPool ??= createPool(url, true);
   return globalThis.__leoesPool;
+}
+
+/** Pool usado pelo Better Auth (schema auth), com parsers padrão do pg. */
+export function getAuthPool(): Pool | null {
+  const url = getDatabaseUrl();
+  if (!url) return null;
+  globalThis.__leoesAuthPool ??= createPool(url, false);
+  return globalThis.__leoesAuthPool;
 }
 
 export type Db = {

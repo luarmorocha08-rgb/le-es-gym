@@ -119,11 +119,29 @@ Arquivo: `db/migrations/0001_init_schema.sql`. As tabelas `auth.users`, `auth.se
   por ator); aceitar uma solicitação cria o vínculo.
 - `export_my_data()` exporta todos os dados do titular (LGPD art. 18).
 
-Os testes em `db/tests/rls_test.sql` exercitam 71 cenários de permissão
+Os testes em `db/tests/rls_test.sql` exercitam 75 cenários de permissão
 (aluno, aluno de outro, profissional vinculado/não vinculado/pendente/
 suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 
-## 4. Camada de IA (Etapa 6)
+## 4. Portal do aluno (Etapa 4)
+
+| Rota | O que faz |
+| --- | --- |
+| `/aluno/dashboard` | Treino do dia (próximo da sequência), retomar treino em andamento, calendário e meta semanal, frequência, metas, notificações, solicitações |
+| `/aluno/meus-treinos` · `/[id]` · `/[id]/editar` | Fichas próprias, prescrições e sugestões; usar como atual, duplicar, arquivar, excluir |
+| `/aluno/criar-treino` | Editor: divisões ABC/ABCD/ABCDE/Full Body/Upper-Lower/Personalizado, dias, séries, repetições, descanso, carga, observações, reordenação (arrastar ou botões) |
+| `/aluno/exercicios` · `/[slug]` | Biblioteca com busca, filtros, instruções e histórico de cargas do aluno |
+| `/aluno/treino/[id]` | Modo treino: cada série é gravada na hora (retoma após recarregar), carga anterior, timer de descanso, conclusão com esforço percebido e resumo com recordes |
+| `/aluno/evolucao` | Frequência e volume semanais, evolução de cargas, recordes, histórico, metas, medidas corporais (com consentimento) |
+| `/aluno/solicitar-profissional` · `/[id]` | Meu Treinador: pedir treino, status em etapas, mensagens, pedir ajuste, concluir ou cancelar |
+| `/aluno/perfil` · `/exportar` | Dados e rotina, saúde (consentimento LGPD), consentimento de IA, senha, notificações, exportar JSON, excluir conta |
+| `/aluno/treino-ia` | Aviso transparente até a Etapa 6 |
+
+Leituras em `src/lib/student/queries.ts` e mutações em `src/app/aluno/_actions/`,
+sempre via `withUser` (RLS). Regras puras (divisões, sequência de dias,
+semana em America/Sao_Paulo, recordes, volume) em `src/lib/workout/` com testes.
+
+## 5. Camada de IA (Etapa 6)
 
 - `src/lib/ai/` **server-only**; chave em `ANTHROPIC_API_KEY` (ou outro
   provedor via `AI_PROVIDER`), modelo em `AI_MODEL`.
@@ -139,7 +157,7 @@ suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 - Guardrails no prompt e na validação: sem diagnóstico, sem promessa de
   resultado; dor/lesão/condição de saúde → orientar avaliação profissional.
 
-## 5. Plano de implementação
+## 6. Plano de implementação
 
 | Etapa | Escopo | Status |
 | --- | --- | --- |
@@ -147,8 +165,8 @@ suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 | 2. Landing | Hero cinematográfico, 3D, scroll storytelling, seções, rodapé | ✅ |
 | 3. Autenticação | Better Auth, login/cadastro/recuperação, proxy, DAL, papéis | ✅ (testado ponta a ponta com Postgres local) |
 | — Banco | Schema completo + RLS + funções + seed + testes + scripts de migração | ✅ |
-| 4. Portal do aluno | Navegação inferior, biblioteca, montar treino, modo treino, evolução, Meu Treinador, perfil (exportar/excluir dados) | Próxima |
-| 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | — |
+| 4. Portal do aluno | Navegação inferior, biblioteca, montar treino, modo treino, evolução, Meu Treinador, perfil (exportar/excluir dados) | ✅ (fotos de progresso aguardam o armazenamento de arquivos) |
+| 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | Próxima |
 | 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões | — |
 | 7. Administração | Aprovações, vínculos, exercícios/mídias, horários, conteúdos, logs | — |
 | 8. Refinamento | Service worker/offline, performance, acessibilidade, testes ampliados | — |

@@ -75,7 +75,8 @@ const sections: { title: string; body: ReactNode }[] = [
     body: (
       <p>
         Você pode acessar, corrigir, exportar e excluir seus dados, além de revogar consentimentos a qualquer momento
-        (LGPD, art. 18), solicitando pelos canais oficiais da academia listados abaixo.
+        (LGPD, art. 18). No portal, em Perfil → Seus dados, você exporta todos os seus dados em JSON, revoga
+        consentimentos e exclui a conta; também é possível solicitar pelos canais oficiais da academia.
       </p>
     ),
   },

@@ -3,7 +3,7 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { PostgresDialect } from "kysely";
 import { actionEmail, sendMail } from "@/lib/email";
-import { getPool } from "@/lib/db";
+import { getAuthPool } from "@/lib/db";
 import { isAuthConfigured, isEmailConfigured, siteUrl } from "@/lib/env";
 
 function createAuth() {
@@ -13,8 +13,8 @@ function createAuth() {
     baseURL: siteUrl(),
     secret: process.env.BETTER_AUTH_SECRET,
     // Tabelas de login no schema "auth" (sem acesso para os papéis de usuário)
-    database: { dialect: new PostgresDialect({ pool: getPool()! }), type: "postgres", schemaName: "auth" },
-    user: { modelName: "users" },
+    database: { dialect: new PostgresDialect({ pool: getAuthPool()! }), type: "postgres", schemaName: "auth" },
+    user: { modelName: "users", deleteUser: { enabled: true } },
     advanced: {
       database: { generateId: "uuid" },
       useSecureCookies: process.env.NODE_ENV === "production",
