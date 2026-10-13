@@ -1,8 +1,10 @@
 import "server-only";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { getAuth } from "@/lib/auth/auth";
+import { withUser, type Db } from "@/lib/db";
 import { homeForRoles, type AppRole } from "./routes";
 
 export type ProfessionalStatus = "pendente" | "aprovado" | "rejeitado" | "suspenso";
@@ -19,39 +21,35 @@ export type Viewer = {
 };
 
 /**
- * Data Access Layer: lê a sessão (JWT verificado via getClaims) e os papéis
- * do banco. Papéis nunca vêm de metadados editáveis pelo usuário.
+ * Data Access Layer: valida a sessão no banco (Better Auth) e lê os papéis
+ * com as permissões do próprio usuário. Papéis nunca vêm do cliente.
  */
 export const getViewer = cache(async (): Promise<Viewer | null> => {
   // Sessão é sempre por requisição: nunca pré-renderizar páginas que dependem dela.
   await connection();
-  const supabase = await createClient();
-  if (!supabase) return null;
-
-  const { data, error } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-  if (error || !claims?.sub) return null;
-  return loadViewer(supabase, claims.sub, typeof claims.email === "string" ? claims.email : null);
+  const auth = getAuth();
+  if (!auth) return null;
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return null;
+  return withUser(session.user.id, (db) => loadViewer(db, session.user.id, session.user.email));
 });
 
-type ServerClient = NonNullable<Awaited<ReturnType<typeof createClient>>>;
-
-/** Monta o Viewer a partir do banco usando um cliente já autenticado. */
-export async function loadViewer(supabase: ServerClient, id: string, email: string | null): Promise<Viewer> {
-  const [profileRes, rolesRes, proRes] = await Promise.all([
-    supabase.from("profiles").select("full_name").eq("id", id).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", id),
-    supabase.from("professional_profiles").select("status").eq("user_id", id).maybeSingle(),
-  ]);
-
-  const roles = (rolesRes.data ?? []).map((r) => r.role as AppRole);
-  const professionalStatus = (proRes.data?.status as ProfessionalStatus | undefined) ?? null;
+/** Monta o Viewer usando uma transação já autenticada como o usuário. */
+export async function loadViewer(db: Db, id: string, email: string | null): Promise<Viewer> {
+  const row = await db.one<{ full_name: string | null; roles: AppRole[] | null; pro_status: ProfessionalStatus | null }>(
+    `select p.full_name,
+            (select array_agg(role::text) from public.user_roles where user_id = $1) as roles,
+            (select status from public.professional_profiles where user_id = $1) as pro_status
+       from public.profiles p where p.id = $1`,
+    [id],
+  );
+  const roles = row?.roles ?? [];
+  const professionalStatus = row?.pro_status ?? null;
   const isActiveTrainer = roles.includes("profissional") && professionalStatus === "aprovado";
-
   return {
     id,
     email,
-    fullName: profileRes.data?.full_name ?? "Leão",
+    fullName: row?.full_name ?? "Leão",
     roles,
     professionalStatus,
     isActiveTrainer,

@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-// Estes testes rodam sem Supabase configurado (ambiente de CI padrão):
-// verificam proteção de rotas e o estado de "configuração pendente".
-const supabaseConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
+// Sem banco configurado (E2E_WITH_DB ausente) também verificam o estado
+// de "configuração pendente"; com banco, a proteção de rotas segue valendo.
+const dbConfigured = Boolean(process.env.E2E_WITH_DB);
 
 test.describe("Autenticação e proteção de rotas", () => {
   for (const path of ["/aluno/dashboard", "/profissional/dashboard", "/admin/dashboard"]) {
@@ -21,7 +21,7 @@ test.describe("Autenticação e proteção de rotas", () => {
   });
 
   test("login mostra configuração pendente sem simular acesso", async ({ page }) => {
-    test.skip(supabaseConfigured, "somente sem Supabase");
+    test.skip(dbConfigured, "somente sem banco configurado");
     await page.goto("/login");
     await expect(page.getByText("Configuração pendente")).toBeVisible();
     await expect(page.getByLabel("E-mail")).toBeDisabled();

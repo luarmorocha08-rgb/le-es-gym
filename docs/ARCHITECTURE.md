@@ -1,88 +1,87 @@
 # LEÕES GYM C5 — Arquitetura
 
 Plataforma web com quatro ambientes (landing pública, portal do aluno, portal do
-profissional e painel administrativo) sobre Next.js + Supabase, com uma camada
-de IA server-side.
+profissional e painel administrativo) sobre Next.js + PostgreSQL, com login
+próprio (Better Auth) e uma camada de IA server-side. Não depende de nenhum
+provedor de backend específico: qualquer Postgres 14+ (Neon, Railway, Docker…).
 
 ## 1. Visão geral
 
 ```
-                ┌──────────────────────────── Navegador ────────────────────────────┐
-                │  Landing (GSAP, Lenis, R3F)  ·  Portais (React, Motion)  ·  PWA  │
-                └───────────────┬───────────────────────────────────┬──────────────┘
-                                │ HTTPS (cookies de sessão)         │
-                ┌───────────────▼───────────────────────────────────▼──────────────┐
-                │ Next.js 16 (App Router)                                          │
-                │  proxy.ts ── renova sessão + checagem otimista de rotas          │
-                │  Server Components ── leem dados via DAL (getViewer/requireArea) │
-                │  Server Actions / Route Handlers ── mutações validadas com Zod   │
-                │  lib/ai (server-only) ── provedor configurável, JSON + Zod       │
-                └───────────────┬───────────────────────────────────┬──────────────┘
-                                │ supabase-js (JWT do usuário)      │ API do provedor de IA
-                ┌───────────────▼──────────────┐          ┌─────────▼─────────┐
-                │ Supabase                     │          │ Anthropic (padrão)│
-                │  Auth · Postgres + RLS       │          │ ou outro provedor │
-                │  Storage (buckets privados)  │          └───────────────────┘
-                │  Funções SECURITY DEFINER    │
-                └──────────────────────────────┘
+        ┌──────────────────────────── Navegador ────────────────────────────┐
+        │  Landing (GSAP, Lenis, R3F)  ·  Portais (React, Motion)  ·  PWA  │
+        └───────────────┬────────────────────────────────────────────────────┘
+                        │ HTTPS (cookie de sessão httpOnly)
+        ┌───────────────▼────────────────────────────────────────────────────┐
+        │ Next.js 16 (App Router)                                            │
+        │  proxy.ts ── sem cookie de sessão → /login (checagem otimista)     │
+        │  /api/auth/* ── Better Auth (login, cadastro, senha, verificação)  │
+        │  Server Components ── DAL: getViewer()/requireArea()               │
+        │  Server Actions ── validação Zod → withUser(id, …)                 │
+        │  lib/ai (server-only) ── provedor configurável, JSON + Zod         │
+        └───────────────┬──────────────────────────────────┬─────────────────┘
+                        │ pg (pool)                         │ API do provedor de IA
+        ┌───────────────▼──────────────────────────┐   ┌────▼──────────────┐
+        │ PostgreSQL                               │   │ Anthropic (padrão)│
+        │  schema auth  ── tabelas do Better Auth  │   └───────────────────┘
+        │  schema public ── dados + RLS + funções  │
+        └──────────────────────────────────────────┘
 ```
+
+**Como a RLS funciona sem Supabase** (`src/lib/db.ts`): toda consulta feita em
+nome de um usuário roda dentro de uma transação que executa
+`set local role authenticated` e `set_config('app.user_id', <id>, true)`.
+A função `auth.uid()` lê esse valor, e as políticas do banco filtram linhas e
+bloqueiam escritas. Visitantes usam o papel `anon`. O usuário de conexão (dono
+do banco) só é usado pelo Better Auth (schema `auth`) e pelos scripts de
+migração.
 
 **Três camadas de autorização** (nenhuma depende só da interface):
 
-1. `src/proxy.ts` — redireciona visitantes não autenticados das áreas logadas.
-2. `src/lib/auth/dal.ts` — `requireArea()` em cada layout verifica o papel lido
-   do banco (nunca de metadados editáveis pelo usuário).
-3. **RLS no Postgres** — a barreira definitiva: mesmo com a chave pública, um
-   usuário só lê/escreve o que as políticas permitem. Transições sensíveis
+1. `src/proxy.ts` — redireciona visitantes sem cookie de sessão das áreas logadas.
+2. `src/lib/auth/dal.ts` — valida a sessão no banco e, em cada layout,
+   `requireArea()` verifica o papel lido de `user_roles`.
+3. **RLS no Postgres** — a barreira definitiva. Transições sensíveis
    (publicar ficha, mudar status de solicitação, aprovar profissional) só
    acontecem por funções que validam o ator, gravam histórico e auditam.
 
 ## 2. Estrutura de pastas
 
 ```
-├─ docs/                       Arquitetura e decisões
-├─ e2e/                        Testes Playwright (desktop + mobile)
-├─ public/media/               Vídeo/fotos próprios da academia (opcional)
-├─ scripts/test-db.sh          Aplica migrations em Postgres local e roda testes de RLS
-├─ supabase/
-│  ├─ migrations/              Schema versionado (tabelas, RLS, funções, triggers)
+├─ db/
+│  ├─ migrations/              Schema versionado (auth + tabelas, RLS, funções, triggers)
 │  ├─ seed.sql                 Biblioteca inicial de exercícios
-│  └─ tests/                   Stub do Supabase + testes de autorização em SQL
+│  └─ tests/rls_test.sql       Testes de autorização em SQL
+├─ docs/                       Arquitetura e decisões
+├─ e2e/                        Testes Playwright (desktop + mobile; fluxo real de conta)
+├─ public/media/               Vídeo/fotos próprios da academia (opcional)
+├─ scripts/                    migrate.mjs · make-admin.mjs · test-db.sh
+├─ docker-compose.yml          Postgres local
 └─ src/
    ├─ app/
    │  ├─ (site)/               Landing, /academia, /equipe, /contato, /privacidade, /acesso-negado
    │  ├─ (auth)/               /login, /cadastro, /recuperar-senha, /redefinir-senha + actions.ts
-   │  ├─ auth/confirm/         Destino dos links de e-mail (PKCE e token_hash)
-   │  ├─ aluno/                Portal do aluno (layout protegido)
-   │  ├─ profissional/         Portal do profissional (layout protegido)
-   │  ├─ admin/                Painel administrativo (layout protegido)
-   │  ├─ layout.tsx · globals.css · manifest.ts · icon.svg · not-found.tsx · error.tsx
-   ├─ components/
-   │  ├─ ui/                   Design system (Button, Input, Card, Badge, Alert…)
-   │  ├─ brand/                Emblema, wordmark, ícones de marca
-   │  ├─ landing/              Seções da landing
-   │  ├─ three/                Cena 3D (medalhão do leão) + fallback
-   │  ├─ motion/               Reveal, Parallax, TextReveal, TiltCard
-   │  ├─ auth/                 Formulários de autenticação
-   │  ├─ layout/               Header, footer, shell dos portais
-   │  └─ providers/            Smooth scroll (Lenis + ScrollTrigger)
+   │  ├─ api/auth/[...all]/    Rotas do Better Auth (verificação de e-mail, reset de senha…)
+   │  ├─ aluno/ · profissional/ · admin/   Portais com layout protegido por papel
+   │  └─ layout.tsx · globals.css · manifest.ts · icon.svg · not-found.tsx · error.tsx
+   ├─ components/              ui · brand · landing · three · motion · auth · layout · providers
    ├─ content/gym.ts           Dados institucionais (endereço, links, mídias)
    ├─ lib/
-   │  ├─ auth/                 DAL (server-only) e regras de rota (puras, testadas)
-   │  ├─ supabase/             Clientes server, browser e proxy
-   │  ├─ data/                 Consultas públicas (horários, equipe)
-   │  ├─ validation/           Schemas Zod
-   │  ├─ hooks/ · gsap.ts · env.ts · utils.ts
+   │  ├─ auth/                 auth.ts (Better Auth), dal.ts, routes.ts (regras puras, testadas)
+   │  ├─ db.ts                 Pool Postgres + withUser/withAnon (RLS por requisição)
+   │  ├─ email.ts              E-mails transacionais (Resend, ou log em dev)
+   │  ├─ data/ · validation/ · hooks/ · gsap.ts · env.ts · utils.ts
    └─ proxy.ts                 (antigo middleware no Next 16)
 ```
 
 Próximas etapas adicionam `src/lib/ai/` (cliente do provedor, prompts,
-schemas de saída, rate limit) e `src/features/<domínio>/` para os módulos dos
-portais (treinos, sessões, solicitações, evolução).
+schemas de saída, rate limit), `src/lib/storage.ts` (arquivos: avatares,
+fotos de progresso, mídias de exercícios — S3 compatível, ex. Cloudflare R2)
+e `src/features/<domínio>/` para os módulos dos portais.
 
 ## 3. Modelo de dados
 
-Arquivo: `supabase/migrations/20261012000000_init_schema.sql`.
+Arquivo: `db/migrations/0001_init_schema.sql`. As tabelas `auth.users`, `auth.session`, `auth.account` e `auth.verification` pertencem ao Better Auth.
 
 | Tabela | Finalidade | Quem acessa |
 | --- | --- | --- |
@@ -99,7 +98,7 @@ Arquivo: `supabase/migrations/20261012000000_init_schema.sql`.
 | `request_events` / `request_messages` | Histórico de status e mensagens reais | Participantes |
 | `workout_sessions` / `completed_sets` | Execução do treino e cargas registradas | Aluno escreve; vinculados leem |
 | `ai_generations` | Registro de cada chamada de IA (entrada minimizada, saída, tokens) | Inserção só pelo servidor |
-| `progress_records` / `personal_goals` | Medidas, fotos (bucket privado), metas | Titular; profissional só se compartilhado |
+| `progress_records` / `personal_goals` | Medidas, fotos (armazenamento privado), metas | Titular; profissional só se compartilhado |
 | `notifications` | Notificações internas | Titular |
 | `trainer_notes` | Observações privadas do profissional | Somente o autor vinculado |
 | `audit_logs` | Rastreabilidade de ações sensíveis | Somente admin lê |
@@ -120,9 +119,9 @@ Arquivo: `supabase/migrations/20261012000000_init_schema.sql`.
   por ator); aceitar uma solicitação cria o vínculo.
 - `export_my_data()` exporta todos os dados do titular (LGPD art. 18).
 
-Os testes em `supabase/tests/10_rls_test.sql` exercitam 66 cenários de
-permissão (aluno, aluno de outro, profissional vinculado/não vinculado/
-pendente/suspenso, admin, anônimo).
+Os testes em `db/tests/rls_test.sql` exercitam 71 cenários de permissão
+(aluno, aluno de outro, profissional vinculado/não vinculado/pendente/
+suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 
 ## 4. Camada de IA (Etapa 6)
 
@@ -146,8 +145,8 @@ pendente/suspenso, admin, anônimo).
 | --- | --- | --- |
 | 1. Fundação | Next 16, Tailwind 4, design system, fontes, marca, PWA manifest | ✅ |
 | 2. Landing | Hero cinematográfico, 3D, scroll storytelling, seções, rodapé | ✅ |
-| 3. Autenticação | Supabase SSR, login/cadastro/recuperação, proxy, DAL, papéis | ✅ (aguarda credenciais para teste ponta a ponta) |
-| — Banco | Schema completo + RLS + funções + seed + testes | ✅ (aplicar no projeto Supabase) |
+| 3. Autenticação | Better Auth, login/cadastro/recuperação, proxy, DAL, papéis | ✅ (testado ponta a ponta com Postgres local) |
+| — Banco | Schema completo + RLS + funções + seed + testes + scripts de migração | ✅ |
 | 4. Portal do aluno | Navegação inferior, biblioteca, montar treino, modo treino, evolução, Meu Treinador, perfil (exportar/excluir dados) | Próxima |
 | 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | — |
 | 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões | — |

@@ -1,13 +1,23 @@
-import type { NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/proxy";
+import { getSessionCookie } from "better-auth/cookies";
+import { NextResponse, type NextRequest } from "next/server";
+import { isProtectedPath } from "@/lib/auth/routes";
 
-export async function proxy(request: NextRequest) {
-  return updateSession(request);
+/**
+ * Checagem otimista: sem cookie de sessão, áreas logadas vão para o login.
+ * A validação real da sessão e do papel acontece no servidor (DAL) e no banco (RLS).
+ */
+export function proxy(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
+  if (isProtectedPath(pathname) && !getSessionCookie(request)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("next", `${pathname}${search}`);
+    return NextResponse.redirect(url);
+  }
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    // Tudo, exceto arquivos estáticos e de imagem
-    "/((?!_next/static|_next/image|icon.svg|manifest.webmanifest|media/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|mp4|webm)$).*)",
-  ],
+  matcher: ["/aluno/:path*", "/profissional/:path*", "/admin/:path*"],
 };

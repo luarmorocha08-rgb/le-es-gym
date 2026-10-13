@@ -11,9 +11,101 @@
 --     restrita ao titular e aos profissionais vinculados.
 --   * Ações importantes passam por funções SECURITY DEFINER que validam
 --     permissão, gravam histórico e registram em audit_logs.
+--
+-- Modelo de execução (Postgres genérico — Neon, Railway, Docker…):
+--   * O app conecta com o usuário dono do banco. Cada requisição de usuário roda
+--     numa transação com `set local role authenticated` (ou `anon`) e
+--     `app.user_id` = id da sessão (ver src/lib/db.ts). Assim as políticas RLS
+--     abaixo valem mesmo que o código da aplicação tenha um bug.
+--   * O login (Better Auth) usa as tabelas do schema `auth`, inacessíveis aos
+--     papéis anon/authenticated.
 -- =============================================================================
 
-create extension if not exists pgcrypto with schema extensions;
+-- -----------------------------------------------------------------------------
+-- Papéis de banco usados pelo app
+-- -----------------------------------------------------------------------------
+do $$ begin
+  create role anon nologin;
+exception when duplicate_object then null; end $$;
+do $$ begin
+  create role authenticated nologin;
+exception when duplicate_object then null; end $$;
+-- o usuário de conexão precisa poder assumir esses papéis
+do $$ begin
+  execute format('grant anon, authenticated to %I', current_user);
+end $$;
+
+-- -----------------------------------------------------------------------------
+-- Schema de autenticação (Better Auth) — sem acesso para anon/authenticated
+-- -----------------------------------------------------------------------------
+create schema if not exists auth;
+revoke all on schema auth from public;
+
+create table auth.users (
+  "id" uuid default gen_random_uuid() not null primary key,
+  "name" text not null,
+  "email" text not null unique,
+  "emailVerified" boolean not null,
+  "image" text,
+  "createdAt" timestamptz default current_timestamp not null,
+  "updatedAt" timestamptz default current_timestamp not null
+);
+
+create table auth.session (
+  "id" uuid default gen_random_uuid() not null primary key,
+  "expiresAt" timestamptz not null,
+  "token" text not null unique,
+  "createdAt" timestamptz default current_timestamp not null,
+  "updatedAt" timestamptz not null,
+  "ipAddress" text,
+  "userAgent" text,
+  "userId" uuid not null references auth.users ("id") on delete cascade
+);
+create index session_userid_idx on auth.session ("userId");
+
+create table auth.account (
+  "id" uuid default gen_random_uuid() not null primary key,
+  "accountId" text not null,
+  "providerId" text not null,
+  "userId" uuid not null references auth.users ("id") on delete cascade,
+  "accessToken" text,
+  "refreshToken" text,
+  "idToken" text,
+  "accessTokenExpiresAt" timestamptz,
+  "refreshTokenExpiresAt" timestamptz,
+  "scope" text,
+  "password" text,
+  "createdAt" timestamptz default current_timestamp not null,
+  "updatedAt" timestamptz not null
+);
+create index account_userid_idx on auth.account ("userId");
+
+create table auth.verification (
+  "id" uuid default gen_random_uuid() not null primary key,
+  "identifier" text not null,
+  "value" text not null,
+  "expiresAt" timestamptz not null,
+  "createdAt" timestamptz default current_timestamp not null,
+  "updatedAt" timestamptz default current_timestamp not null
+);
+create index verification_identifier_idx on auth.verification ("identifier");
+
+-- Usuário da requisição atual (definido por transação em src/lib/db.ts)
+create or replace function auth.uid()
+returns uuid
+language sql stable
+as $$
+  select nullif(current_setting('app.user_id', true), '')::uuid
+$$;
+
+grant usage on schema auth to anon, authenticated;
+revoke all on all tables in schema auth from anon, authenticated;
+grant execute on function auth.uid() to anon, authenticated;
+
+-- Tabelas públicas: privilégios amplos, filtrados pelas políticas RLS
+grant usage on schema public to anon, authenticated;
+alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated;
+alter default privileges in schema public grant usage, select on sequences to anon, authenticated;
 
 -- -----------------------------------------------------------------------------
 -- Tipos
@@ -267,6 +359,8 @@ revoke execute on function public.notify(uuid, text, text, text, text) from publ
 
 -- =============================================================================
 -- CADASTRO: cria perfil + papel "aluno" ao criar usuário no Auth
+-- (aceite de termos e pedido de cadastro profissional são gravados em seguida
+--  pela própria sessão do usuário, sujeitos às políticas RLS)
 -- =============================================================================
 create or replace function public.handle_new_user()
 returns trigger
@@ -274,24 +368,16 @@ language plpgsql security definer
 set search_path = ''
 as $$
 declare
-  _name text := nullif(trim(coalesce(new.raw_user_meta_data ->> 'full_name', '')), '');
-  _wants_pro boolean := coalesce(new.raw_user_meta_data ->> 'wants_professional', '') = 'true';
+  _name text := nullif(trim(coalesce(new."name", '')), '');
 begin
-  insert into public.profiles (id, full_name, terms_accepted_at)
+  insert into public.profiles (id, full_name)
   values (
     new.id,
-    left(coalesce(_name, split_part(coalesce(new.email, 'Aluno'), '@', 1), 'Aluno'), 120),
-    case when coalesce(new.raw_user_meta_data ->> 'terms_accepted', '') = 'true' then now() end
+    left(coalesce(_name, split_part(coalesce(new.email, 'Aluno'), '@', 1), 'Aluno'), 120)
   );
 
   -- Todo usuário começa como aluno. Papel profissional depende de aprovação.
   insert into public.user_roles (user_id, role) values (new.id, 'aluno');
-
-  if _wants_pro then
-    insert into public.professional_profiles (user_id, status, cref)
-    values (new.id, 'pendente', left(nullif(trim(new.raw_user_meta_data ->> 'cref'), ''), 30));
-  end if;
-
   return new;
 end;
 $$;
@@ -338,7 +424,7 @@ create table public.exercises (
   level public.experience_level not null default 'iniciante',
   instructions text[] not null check (cardinality(instructions) > 0),
   tips text[] not null default '{}',
-  media_path text,  -- caminho no bucket "exercise-media"
+  media_path text,  -- caminho no armazenamento de arquivos (privado/público por pasta)
   video_url text check (video_url is null or video_url ~ '^https://'),
   is_active boolean not null default true,
   created_by uuid references auth.users (id) on delete set null,
@@ -867,7 +953,7 @@ create table public.progress_records (
   weight_kg numeric(5, 2) check (weight_kg is null or weight_kg between 20 and 400),
   body_fat_pct numeric(4, 1) check (body_fat_pct is null or body_fat_pct between 2 and 70),
   measurements jsonb not null default '{}'::jsonb, -- {"cintura_cm": 80, ...}
-  photo_path text,  -- bucket privado "progress-photos"
+  photo_path text,  -- armazenamento privado (nunca público)
   notes text check (notes is null or char_length(notes) <= 500),
   share_with_trainer boolean not null default false,
   created_at timestamptz not null default now()
@@ -1265,40 +1351,3 @@ create policy "site_content: leitura pública" on public.site_content
   for select to anon, authenticated using (true);
 create policy "site_content: admin escreve" on public.site_content
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
--- =============================================================================
--- STORAGE (buckets privados; caminho sempre começa com o id do usuário)
--- =============================================================================
-do $$
-begin
-  if exists (select 1 from information_schema.tables where table_schema = 'storage' and table_name = 'buckets') then
-    insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
-      ('avatars', 'avatars', true, 2097152, array['image/jpeg', 'image/png', 'image/webp']),
-      ('exercise-media', 'exercise-media', true, 52428800, array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm']),
-      ('progress-photos', 'progress-photos', false, 5242880, array['image/jpeg', 'image/png', 'image/webp']),
-      ('site-media', 'site-media', true, 52428800, array['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'])
-    on conflict (id) do nothing;
-
-    execute $p$
-      create policy "avatars: dono escreve" on storage.objects for all to authenticated
-        using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text)
-        with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text)
-    $p$;
-    execute $p$
-      create policy "progress: dono" on storage.objects for all to authenticated
-        using (bucket_id = 'progress-photos' and (storage.foldername(name))[1] = (select auth.uid())::text)
-        with check (bucket_id = 'progress-photos' and (storage.foldername(name))[1] = (select auth.uid())::text)
-    $p$;
-    execute $p$
-      create policy "exercise-media: admin escreve" on storage.objects for all to authenticated
-        using (bucket_id = 'exercise-media' and public.is_admin())
-        with check (bucket_id = 'exercise-media' and public.is_admin())
-    $p$;
-    execute $p$
-      create policy "site-media: admin escreve" on storage.objects for all to authenticated
-        using (bucket_id = 'site-media' and public.is_admin())
-        with check (bucket_id = 'site-media' and public.is_admin())
-    $p$;
-  end if;
-end;
-$$;

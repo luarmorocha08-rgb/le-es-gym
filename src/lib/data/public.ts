@@ -1,5 +1,5 @@
 import "server-only";
-import { createPublicClient } from "@/lib/supabase/server";
+import { getPool, withAnon } from "@/lib/db";
 
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
 
@@ -10,17 +10,23 @@ export type PublicResult<T> =
   | { status: "not_configured" }
   | { status: "error"; message: string };
 
+async function publicQuery<T>(fn: Parameters<typeof withAnon<T>>[0]): Promise<PublicResult<T>> {
+  if (!getPool()) return { status: "not_configured" };
+  try {
+    return { status: "ok", data: await withAnon(fn) };
+  } catch (error) {
+    console.error("[public data]", error);
+    return { status: "error", message: "Falha ao consultar o banco de dados." };
+  }
+}
+
 /** Horários cadastrados pela administração (tabela opening_hours). */
-export async function getOpeningHours(): Promise<PublicResult<OpeningHour[]>> {
-  const supabase = createPublicClient();
-  if (!supabase) return { status: "not_configured" };
-  const { data, error } = await supabase
-    .from("opening_hours")
-    .select("weekday, opens_at, closes_at, note")
-    .order("weekday")
-    .order("opens_at");
-  if (error) return { status: "error", message: error.message };
-  return { status: "ok", data: data ?? [] };
+export function getOpeningHours() {
+  return publicQuery((db) =>
+    db.query<OpeningHour>(
+      "select weekday, opens_at::text, closes_at::text, note from public.opening_hours order by weekday, opens_at",
+    ),
+  );
 }
 
 export type PublicTrainer = {
@@ -34,12 +40,8 @@ export type PublicTrainer = {
 };
 
 /** Profissionais aprovados que optaram por perfil público (view public_trainers). */
-export async function getPublicTrainers(): Promise<PublicResult<PublicTrainer[]>> {
-  const supabase = createPublicClient();
-  if (!supabase) return { status: "not_configured" };
-  const { data, error } = await supabase.from("public_trainers").select("*").order("full_name");
-  if (error) return { status: "error", message: error.message };
-  return { status: "ok", data: (data ?? []) as PublicTrainer[] };
+export function getPublicTrainers() {
+  return publicQuery((db) => db.query<PublicTrainer>("select * from public.public_trainers order by full_name"));
 }
 
 /** Agrupa faixas por dia da semana, mantendo a ordem seg→dom. */

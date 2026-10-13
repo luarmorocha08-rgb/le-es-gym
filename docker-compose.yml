@@ -1,0 +1,15 @@
+# Postgres para desenvolvimento local: docker compose up -d
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: leoes
+      POSTGRES_PASSWORD: leoes
+      POSTGRES_DB: leoes
+    ports:
+      - "5432:5432"
+    volumes:
+      - leoes-db:/var/lib/postgresql/data
+volumes:
+  leoes-db:

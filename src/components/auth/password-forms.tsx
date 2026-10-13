@@ -28,11 +28,12 @@ export function ResetRequestForm({ disabled }: { disabled?: boolean }) {
   );
 }
 
-export function NewPasswordForm() {
+export function NewPasswordForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updatePassword, { status: "idle" });
   return (
     <form action={action} className="space-y-5" noValidate>
       {state.message && <Alert tone="error">{state.message}</Alert>}
+      <input type="hidden" name="token" value={token} />
       <FormField
         label="Nova senha"
         name="password"

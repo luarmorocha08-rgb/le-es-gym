@@ -1,7 +1,7 @@
 -- =============================================================================
 -- Biblioteca inicial de exercícios (técnica padrão de execução).
--- Mídias (imagens/vídeos) devem ser enviadas pelo admin para o bucket
--- "exercise-media" e associadas em /admin/exercicios — não há mídias fictícias.
+-- Mídias (imagens/vídeos) serão enviadas pelo admin em /admin/exercicios para o
+-- armazenamento de arquivos (definido na Etapa 4) — não há mídias fictícias.
 -- =============================================================================
 insert into public.exercises (slug, name, primary_muscles, secondary_muscles, equipment, mechanics, level, instructions, tips) values
 -- PEITO -----------------------------------------------------------------------

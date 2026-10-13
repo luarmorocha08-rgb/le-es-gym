@@ -1,10 +1,13 @@
 "use server";
 
+import { APIError } from "better-auth/api";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getViewer, loadViewer } from "@/lib/auth/dal";
+import { getAuth } from "@/lib/auth/auth";
+import { loadViewer } from "@/lib/auth/dal";
 import { safeNextPath } from "@/lib/auth/routes";
-import { createClient } from "@/lib/supabase/server";
+import { withUser } from "@/lib/db";
+import { emailMode, isEmailConfigured } from "@/lib/env";
 import {
   loginSchema,
   newPasswordSchema,
@@ -23,36 +26,29 @@ export type FormState = {
 
 const NOT_CONFIGURED: FormState = {
   status: "error",
-  message: "A autenticação ainda não foi configurada neste ambiente (Supabase pendente).",
+  message: "A autenticação ainda não foi configurada neste ambiente (banco de dados pendente).",
 };
 
-async function siteOrigin() {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return configured.replace(/\/$/, "");
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
-}
-
-/** Traduz mensagens comuns do Supabase Auth sem expor detalhes internos. */
-function authErrorMessage(code: string | undefined, fallback: string) {
+/** Traduz códigos do Better Auth sem expor detalhes internos. */
+function authErrorMessage(error: unknown, fallback: string) {
+  const code = error instanceof APIError ? String(error.body?.code ?? "") : "";
+  const status = error instanceof APIError ? error.statusCode : 0;
+  if (status === 429) return "Muitas tentativas. Aguarde um minuto e tente novamente.";
   switch (code) {
-    case "invalid_credentials":
+    case "INVALID_EMAIL_OR_PASSWORD":
       return "E-mail ou senha incorretos.";
-    case "email_not_confirmed":
+    case "EMAIL_NOT_VERIFIED":
       return "Confirme seu e-mail pelo link que enviamos antes de entrar.";
-    case "user_already_exists":
-    case "email_exists":
+    case "USER_ALREADY_EXISTS":
+    case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL":
       return "Já existe uma conta com este e-mail.";
-    case "weak_password":
-      return "Senha fraca. Use pelo menos 8 caracteres com letras e números.";
-    case "over_request_rate_limit":
-    case "over_email_send_rate_limit":
-      return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
-    case "same_password":
-      return "A nova senha precisa ser diferente da atual.";
+    case "PASSWORD_TOO_SHORT":
+    case "PASSWORD_TOO_LONG":
+      return "A senha precisa ter entre 8 e 72 caracteres.";
+    case "INVALID_TOKEN":
+      return "Link inválido ou expirado. Solicite uma nova redefinição de senha.";
     default:
+      if (!(error instanceof APIError)) console.error("[auth]", error);
       return fallback;
   }
 }
@@ -62,15 +58,20 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
   const values = { email: String(formData.get("email") ?? "") };
   if (!parsed.success) return { status: "error", fieldErrors: toFieldErrors(parsed.error), values };
 
-  const supabase = await createClient();
-  if (!supabase) return NOT_CONFIGURED;
+  const auth = getAuth();
+  if (!auth) return NOT_CONFIGURED;
 
-  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error || !data.user) {
-    return { status: "error", message: authErrorMessage(error?.code, "Não foi possível entrar. Tente novamente."), values };
+  let userId: string;
+  let email: string;
+  try {
+    const result = await auth.api.signInEmail({ body: parsed.data, headers: await headers() });
+    userId = result.user.id;
+    email = result.user.email;
+  } catch (error) {
+    return { status: "error", message: authErrorMessage(error, "Não foi possível entrar. Tente novamente."), values };
   }
 
-  const viewer = await loadViewer(supabase, data.user.id, data.user.email ?? null);
+  const viewer = await withUser(userId, (db) => loadViewer(db, userId, email));
   const requested = formData.get("next");
   redirect(requested ? safeNextPath(requested, viewer.home) : viewer.home);
 }
@@ -86,33 +87,35 @@ export async function signup(_prev: FormState, formData: FormData): Promise<Form
   const parsed = signupSchema.safeParse(raw);
   if (!parsed.success) return { status: "error", fieldErrors: toFieldErrors(parsed.error), values };
 
-  const supabase = await createClient();
-  if (!supabase) return NOT_CONFIGURED;
+  const auth = getAuth();
+  if (!auth) return NOT_CONFIGURED;
 
   const { fullName, email, password, wantsProfessional, cref } = parsed.data;
-  const origin = await siteOrigin();
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/auth/confirm?next=/aluno/dashboard`,
-      // Metadados usados apenas para criar o perfil. O papel NUNCA vem daqui:
-      // "wants_professional" cria um cadastro pendente de aprovação do admin.
-      data: {
-        full_name: fullName,
-        terms_accepted: "true",
-        wants_professional: wantsProfessional ? "true" : "false",
-        cref: wantsProfessional ? cref : "",
-      },
-    },
-  });
-
-  if (error) {
-    return { status: "error", message: authErrorMessage(error.code, "Não foi possível criar sua conta."), values };
+  let userId: string;
+  try {
+    const result = await auth.api.signUpEmail({
+      body: { name: fullName, email, password, callbackURL: "/aluno/dashboard" },
+      headers: await headers(),
+    });
+    userId = result.user.id;
+  } catch (error) {
+    return { status: "error", message: authErrorMessage(error, "Não foi possível criar sua conta."), values };
   }
 
-  // Com confirmação de e-mail ativa, não há sessão até o usuário confirmar.
-  if (!data.session) {
+  // O trigger do banco criou perfil + papel "aluno". Os complementos são
+  // gravados com as permissões do próprio usuário (RLS): o cadastro
+  // profissional só pode nascer "pendente".
+  await withUser(userId, async (db) => {
+    await db.query("update public.profiles set terms_accepted_at = now() where id = $1", [userId]);
+    if (wantsProfessional) {
+      await db.query(
+        "insert into public.professional_profiles (user_id, status, cref) values ($1, 'pendente', $2)",
+        [userId, cref || null],
+      );
+    }
+  });
+
+  if (isEmailConfigured()) {
     return {
       status: "success",
       message: `Enviamos um link de confirmação para ${email}. Abra seu e-mail para ativar a conta.`,
@@ -122,8 +125,14 @@ export async function signup(_prev: FormState, formData: FormData): Promise<Form
 }
 
 export async function logout() {
-  const supabase = await createClient();
-  if (supabase) await supabase.auth.signOut();
+  const auth = getAuth();
+  if (auth) {
+    try {
+      await auth.api.signOut({ headers: await headers() });
+    } catch {
+      // sessão já expirada: segue para o login
+    }
+  }
   redirect("/login");
 }
 
@@ -131,15 +140,22 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
   const parsed = resetRequestSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { status: "error", fieldErrors: toFieldErrors(parsed.error) };
 
-  const supabase = await createClient();
-  if (!supabase) return NOT_CONFIGURED;
+  const auth = getAuth();
+  if (!auth) return NOT_CONFIGURED;
+  if (emailMode() === "off") {
+    return { status: "error", message: "A recuperação por e-mail ainda não foi configurada. Fale com a academia." };
+  }
 
-  const origin = await siteOrigin();
-  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${origin}/auth/confirm?next=/redefinir-senha`,
-  });
-  if (error && error.code?.startsWith("over_")) {
-    return { status: "error", message: authErrorMessage(error.code, "") };
+  try {
+    await auth.api.requestPasswordReset({
+      body: { email: parsed.data.email, redirectTo: "/redefinir-senha" },
+      headers: await headers(),
+    });
+  } catch (error) {
+    if (error instanceof APIError && error.statusCode === 429) {
+      return { status: "error", message: authErrorMessage(error, "") };
+    }
+    console.error("[auth] requestPasswordReset", error);
   }
   // Resposta idêntica exista ou não a conta (evita enumeração de e-mails).
   return {
@@ -151,16 +167,16 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
 export async function updatePassword(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = newPasswordSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { status: "error", fieldErrors: toFieldErrors(parsed.error) };
+  const token = String(formData.get("token") ?? "");
+  if (!token) return { status: "error", message: "Link inválido ou expirado. Solicite uma nova redefinição de senha." };
 
-  const supabase = await createClient();
-  if (!supabase) return NOT_CONFIGURED;
+  const auth = getAuth();
+  if (!auth) return NOT_CONFIGURED;
 
-  const viewer = await getViewer();
-  if (!viewer) {
-    return { status: "error", message: "Link expirado. Solicite uma nova redefinição de senha." };
+  try {
+    await auth.api.resetPassword({ body: { newPassword: parsed.data.password, token }, headers: await headers() });
+  } catch (error) {
+    return { status: "error", message: authErrorMessage(error, "Não foi possível alterar a senha.") };
   }
-
-  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
-  if (error) return { status: "error", message: authErrorMessage(error.code, "Não foi possível alterar a senha.") };
-  redirect(viewer.home);
+  redirect("/login?senha=alterada");
 }

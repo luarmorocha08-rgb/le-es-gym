@@ -4,13 +4,13 @@ import { redirect } from "next/navigation";
 import { SetupNotice } from "@/components/auth/setup-notice";
 import { SignupForm } from "@/components/auth/signup-form";
 import { getViewer } from "@/lib/auth/dal";
-import { isSupabaseConfigured } from "@/lib/env";
+import { isAuthConfigured } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Criar conta" };
 
 export default async function SignupPage({ searchParams }: PageProps<"/cadastro">) {
   const params = await searchParams;
-  const configured = isSupabaseConfigured();
+  const configured = isAuthConfigured();
   const viewer = configured ? await getViewer() : null;
   if (viewer) redirect(viewer.home);
 

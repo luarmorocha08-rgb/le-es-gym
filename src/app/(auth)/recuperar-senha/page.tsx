@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { ResetRequestForm } from "@/components/auth/password-forms";
 import { SetupNotice } from "@/components/auth/setup-notice";
-import { isSupabaseConfigured } from "@/lib/env";
+import { isAuthConfigured } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Recuperar senha" };
 
-export default function ResetRequestPage() {
-  const configured = isSupabaseConfigured();
+export default async function ResetRequestPage() {
+  // configuração lida em tempo de execução (não no build)
+  await connection();
+  const configured = isAuthConfigured();
   return (
     <div>
       <p className="eyebrow mb-4">Recuperar acesso</p>

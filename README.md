@@ -3,7 +3,7 @@
 > "SE VOCÊ QUER SER UM LEÃO, DEVE TREINAR COM OS LEÕES."
 
 Plataforma da academia LEÕES GYM C5 (Santos/SP): site cinematográfico, portal do
-aluno, portal do profissional e painel administrativo, com Supabase e IA.
+aluno, portal do profissional e painel administrativo, com Postgres e IA.
 
 - Arquitetura, modelo de dados e plano por etapas: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
@@ -11,19 +11,25 @@ aluno, portal do profissional e painel administrativo, com Supabase e IA.
 
 Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS 4 ·
 componentes próprios no estilo shadcn/ui · Lucide · GSAP + ScrollTrigger +
-SplitText · Lenis · Motion · Three.js + React Three Fiber + Drei · Supabase
-(Auth, Postgres, RLS, Storage) · Zod · Vitest · Playwright.
+SplitText · Lenis · Motion · Three.js + React Three Fiber + Drei ·
+**PostgreSQL (qualquer provedor) com RLS** · **Better Auth** (login por e-mail e
+senha) · Zod · Vitest · Playwright.
 
 ## Rodando localmente
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha as variáveis (veja abaixo)
-npm run dev                  # http://localhost:3000
+cp .env.example .env.local      # gere o BETTER_AUTH_SECRET: openssl rand -base64 32
+docker compose up -d            # Postgres local (ou use um banco do Neon)
+npm run db:seed                 # aplica as migrations + biblioteca de exercícios
+npm run dev                     # http://localhost:3000
 ```
 
-Sem as variáveis do Supabase o site público funciona normalmente e as telas
-de login/cadastro exibem **"Configuração pendente"** — nada é simulado.
+Sem `DATABASE_URL`/`BETTER_AUTH_SECRET` o site público funciona normalmente e
+as telas de login/cadastro exibem **"Configuração pendente"** — nada é simulado.
+
+Em desenvolvimento, sem provedor de e-mail, os links de recuperação de senha
+aparecem no terminal do servidor.
 
 ## Scripts
 
@@ -31,38 +37,37 @@ de login/cadastro exibem **"Configuração pendente"** — nada é simulado.
 | --- | --- |
 | `npm run dev` | Servidor de desenvolvimento |
 | `npm run build` / `npm start` | Build e servidor de produção |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | Gera tipos de rotas e roda `tsc` |
+| `npm run lint` · `npm run typecheck` | ESLint · tipos de rotas + `tsc` |
 | `npm test` | Testes unitários (Vitest) |
-| `npm run test:e2e` | Testes E2E (Playwright, desktop + mobile) |
-| `npm run test:db` | Aplica migrations em um Postgres local descartável e roda os testes de RLS (requer `DATABASE_URL`) |
+| `npm run test:e2e` | Testes E2E (Playwright, desktop + mobile). Com `E2E_WITH_DB=1` inclui o fluxo real de conta |
+| `npm run db:migrate` | Aplica migrations pendentes de `db/migrations` |
+| `npm run db:seed` | Migrations + seed da biblioteca de exercícios |
+| `npm run db:make-admin -- email@x.com` | Torna uma conta cadastrada administradora (1º admin) |
+| `npm run test:db` | Banco descartável + testes de RLS (requer `DATABASE_URL` de um Postgres local) |
 
 ## Credenciais necessárias
 
-### 1. Supabase (obrigatório para login e portais)
+### 1. Banco de dados Postgres (obrigatório para login e portais)
 
-1. Crie um projeto em <https://supabase.com/dashboard> (região sugerida: São Paulo, `sa-east-1`).
-2. Em **Project Settings → API** copie:
-   - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
-   - **Publishable key** (`sb_publishable_…`, ou a *anon key* em projetos antigos) → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-   - **Secret key** (`sb_secret_…` / *service_role*) → `SUPABASE_SECRET_KEY` (somente servidor; usada a partir da Etapa 6)
-3. Aplique o banco (com a [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started)):
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref SEU_PROJECT_REF
-   npx supabase db push                         # aplica supabase/migrations
-   psql "$SUA_CONNECTION_STRING" -f supabase/seed.sql   # biblioteca de exercícios
-   ```
-   (ou cole os arquivos no **SQL Editor** do painel, na mesma ordem).
-4. Em **Authentication → URL Configuration**:
-   - *Site URL*: a URL de produção (ex.: `https://leoesgymc5.com.br`)
-   - *Redirect URLs*: `http://localhost:3000/auth/confirm` e `https://SEU-DOMINIO/auth/confirm`
-5. Crie sua conta pelo `/cadastro` e torne-se o **primeiro administrador** no SQL Editor:
-   ```sql
-   insert into public.user_roles (user_id, role)
-   select id, 'admin' from auth.users where email = 'seu-email@exemplo.com';
-   ```
-   Depois disso, novos papéis são concedidos apenas pelo painel/funções administrativas.
+Qualquer Postgres 14+ serve. Sugestão: **[Neon](https://neon.tech)** (possui plano
+gratuito; confira os limites atuais no site). Railway ou um Postgres próprio também funcionam.
+
+1. Crie um projeto no Neon → copie a *connection string* (com `?sslmode=require`) → `DATABASE_URL`.
+2. Gere o segredo das sessões: `openssl rand -base64 32` → `BETTER_AUTH_SECRET`.
+3. Defina `BETTER_AUTH_URL` e `NEXT_PUBLIC_SITE_URL` com a URL do site.
+4. `npm run db:seed` (aplica schema, políticas RLS e exercícios).
+5. Cadastre-se pelo site e rode `npm run db:make-admin -- seu-email@exemplo.com`.
+   Depois disso, novos papéis são concedidos apenas pelas funções administrativas.
+
+> O usuário do banco precisa poder criar papéis (`CREATEROLE`) na primeira
+> migração — o usuário padrão do Neon, Railway, Supabase ou Docker já pode.
+
+### E-mails (opcional, recomendado em produção)
+
+Para confirmação de cadastro e recuperação de senha, crie uma conta no
+[Resend](https://resend.com), verifique o domínio e defina `RESEND_API_KEY` e
+`EMAIL_FROM`. Sem isso, a confirmação de e-mail fica desativada e a
+recuperação de senha mostra "não configurada" em produção.
 
 ### 2. Provedor de IA (Etapa 6)
 
@@ -81,6 +86,9 @@ substituir o emblema em `src/components/brand/emblem.tsx`.
 
 - Papéis nunca vêm do cliente: cadastro sempre cria "aluno"; profissional
   depende de aprovação; admin é concedido por outro admin.
-- RLS em todas as tabelas, com testes automatizados (`supabase/tests`).
+- Cada requisição roda no banco como o papel `authenticated` com o id da
+  sessão: as políticas RLS valem mesmo se houver bug no código. Testes em
+  `db/tests`. As tabelas de login (schema `auth`) ficam inacessíveis a esse papel.
 - Parâmetro `next` sanitizado contra open redirect; cabeçalhos de segurança
-  em `next.config.ts`; segredos somente em variáveis sem `NEXT_PUBLIC_`.
+  em `next.config.ts`; segredos somente no servidor; limite de tentativas de
+  login pelo Better Auth.

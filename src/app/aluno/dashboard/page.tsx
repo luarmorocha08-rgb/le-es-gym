@@ -2,19 +2,21 @@ import type { Metadata } from "next";
 import { greeting, StatCard } from "@/components/layout/portal-shell";
 import { StageNotice } from "@/components/layout/stage-notice";
 import { requireArea } from "@/lib/auth/dal";
-import { createClient } from "@/lib/supabase/server";
+import { withUser } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Início" };
 
 export default async function StudentDashboard() {
   const viewer = await requireArea("aluno");
-  const supabase = (await createClient())!;
-
-  const [plans, sessions, unread] = await Promise.all([
-    supabase.from("workout_plans").select("id", { count: "exact", head: true }).eq("student_id", viewer.id).in("status", ["ativo", "publicado"]),
-    supabase.from("workout_sessions").select("id", { count: "exact", head: true }).eq("student_id", viewer.id).eq("status", "concluida"),
-    supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", viewer.id).is("read_at", null),
-  ]);
+  const counts = await withUser(viewer.id, (db) =>
+    db.one<{ plans: number; sessions: number; unread: number }>(
+      `select
+         (select count(*)::int from public.workout_plans where student_id = $1 and status in ('ativo', 'publicado')) as plans,
+         (select count(*)::int from public.workout_sessions where student_id = $1 and status = 'concluida') as sessions,
+         (select count(*)::int from public.notifications where user_id = $1 and read_at is null) as unread`,
+      [viewer.id],
+    ),
+  );
 
   const firstName = viewer.fullName.split(" ")[0];
 
@@ -28,9 +30,9 @@ export default async function StudentDashboard() {
         )}
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Fichas em uso" value={plans.count ?? 0} />
-        <StatCard label="Treinos concluídos" value={sessions.count ?? 0} />
-        <StatCard label="Notificações novas" value={unread.count ?? 0} />
+        <StatCard label="Fichas em uso" value={counts?.plans ?? 0} />
+        <StatCard label="Treinos concluídos" value={counts?.sessions ?? 0} />
+        <StatCard label="Notificações novas" value={counts?.unread ?? 0} />
       </div>
       <StageNotice
         stage="Etapa 4"

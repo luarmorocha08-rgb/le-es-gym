@@ -38,28 +38,56 @@ grant execute on all functions in schema tests to authenticated, anon;
 create or replace function tests.login(_uid uuid)
 returns void language plpgsql as $$
 begin
-  perform set_config('request.jwt.claim.sub', coalesce(_uid::text, ''), false);
+  perform set_config('app.user_id', coalesce(_uid::text, ''), false);
 end;
 $$;
 grant execute on function tests.login(uuid) to authenticated, anon;
 
--- Usuários -------------------------------------------------------------------
-insert into auth.users (id, email, raw_user_meta_data) values
-  ('00000000-0000-0000-0000-00000000000a', 'admin@teste.local', '{"full_name":"Admin Teste"}'),
-  ('00000000-0000-0000-0000-0000000000f1', 'pro1@teste.local', '{"full_name":"Profissional Um","wants_professional":"true","cref":"000000-G/SP"}'),
-  ('00000000-0000-0000-0000-0000000000f2', 'pro2@teste.local', '{"full_name":"Profissional Dois","wants_professional":"true"}'),
-  ('00000000-0000-0000-0000-0000000000a1', 'aluno1@teste.local', '{"full_name":"Aluno Um","terms_accepted":"true"}'),
-  ('00000000-0000-0000-0000-0000000000a2', 'aluno2@teste.local', '{"full_name":"Aluno Dois","wants_professional":"nao-booleano"}');
+-- Usuários (como o Better Auth cria) ------------------------------------------
+insert into auth.users (id, name, email, "emailVerified") values
+  ('00000000-0000-0000-0000-00000000000a', 'Admin Teste', 'admin@teste.local', true),
+  ('00000000-0000-0000-0000-0000000000f1', 'Profissional Um', 'pro1@teste.local', true),
+  ('00000000-0000-0000-0000-0000000000f2', 'Profissional Dois', 'pro2@teste.local', true),
+  ('00000000-0000-0000-0000-0000000000a1', 'Aluno Um', 'aluno1@teste.local', true),
+  ('00000000-0000-0000-0000-0000000000a2', '', 'aluno2@teste.local', true);
+insert into auth.account ("accountId", "providerId", "userId", password, "updatedAt")
+values ('00000000-0000-0000-0000-0000000000a1', 'credential', '00000000-0000-0000-0000-0000000000a1', 'hash-secreto', now());
 
 -- bootstrap do primeiro admin (feito manualmente via SQL no projeto real)
 insert into public.user_roles (user_id, role) values ('00000000-0000-0000-0000-00000000000a', 'admin');
 
+-- pós-cadastro feito pela própria sessão de cada usuário (como em actions.ts)
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-0000000000f1');
+insert into public.professional_profiles (user_id, status, cref) values ('00000000-0000-0000-0000-0000000000f1', 'pendente', '000000-G/SP');
+select tests.login('00000000-0000-0000-0000-0000000000f2');
+insert into public.professional_profiles (user_id, status) values ('00000000-0000-0000-0000-0000000000f2', 'pendente');
+select tests.login('00000000-0000-0000-0000-0000000000a1');
+update public.profiles set terms_accepted_at = now() where id = '00000000-0000-0000-0000-0000000000a1';
+reset role;
+
 do $$ begin
   perform tests.expect_count($q$select 1 from public.profiles$q$, 5, 'trigger criou 5 perfis');
+  perform tests.expect_count($q$select 1 from public.profiles where full_name = 'aluno2'$q$, 1, 'nome vazio usa parte do e-mail');
   perform tests.expect_count($q$select 1 from public.user_roles where role = 'aluno'$q$, 5, 'todos começam como aluno');
   perform tests.expect_count($q$select 1 from public.professional_profiles where status = 'pendente'$q$, 2, '2 cadastros profissionais pendentes');
   perform tests.expect_count($q$select 1 from public.profiles where terms_accepted_at is not null$q$, 1, 'aceite de termos registrado');
 end $$;
+
+-- Schema auth é inacessível às sessões de usuário ------------------------------
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-0000000000a1');
+do $$ begin
+  perform tests.expect_error($q$select password from auth.account$q$, 'usuário ler hashes de senha');
+  perform tests.expect_error($q$select email from auth.users$q$, 'usuário listar e-mails de auth.users');
+  perform tests.expect_error($q$select token from auth.session$q$, 'usuário ler tokens de sessão');
+end $$;
+reset role;
+set role anon;
+do $$ begin
+  perform tests.expect_error($q$select token from auth.session$q$, 'anônimo ler tokens de sessão');
+end $$;
+reset role;
 
 -- ALUNO 1 ----------------------------------------------------------------------
 set role authenticated;
