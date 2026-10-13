@@ -1,0 +1,45 @@
+# Prepara o banco de produção sem instalar nada no computador:
+# GitHub → Actions → "Banco de dados (produção)" → Run workflow.
+# Requer o segredo DATABASE_URL (Settings → Secrets and variables → Actions).
+name: Banco de dados (produção)
+
+on:
+  workflow_dispatch:
+    inputs:
+      admin_email:
+        description: "E-mail de uma conta JÁ cadastrada no site para virar administradora (opcional)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-setup
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verificar segredo
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Cadastre o segredo DATABASE_URL em Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+      - run: npm ci
+      - name: Aplicar migrations e biblioteca de exercícios
+        run: npm run db:seed
+      - name: Definir administrador
+        if: ${{ inputs.admin_email != '' }}
+        env:
+          ADMIN_EMAIL: ${{ inputs.admin_email }}
+        run: npm run db:make-admin -- "$ADMIN_EMAIL"
