@@ -33,6 +33,13 @@ export async function requireTrainerId() {
   return viewer.id;
 }
 
+/** Exige administrador (as funções e políticas do banco também exigem). */
+export async function requireAdminId() {
+  const viewer = await getViewer();
+  if (!viewer?.isAdmin) throw new Error("Acesso restrito à administração.");
+  return viewer.id;
+}
+
 export function fieldErrorsOf(error: { issues: { path: PropertyKey[]; message: string }[] }) {
   const out: Record<string, string> = {};
   for (const i of error.issues) out[String(i.path[0])] ??= i.message;

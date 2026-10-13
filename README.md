@@ -57,7 +57,8 @@ gratuito; confira os limites atuais no site). Railway ou um Postgres próprio ta
 3. Defina `BETTER_AUTH_URL` e `NEXT_PUBLIC_SITE_URL` com a URL do site.
 4. `npm run db:seed` (aplica schema, políticas RLS e exercícios).
 5. Cadastre-se pelo site e rode `npm run db:make-admin -- seu-email@exemplo.com`.
-   Depois disso, novos papéis são concedidos apenas pelas funções administrativas.
+   Depois disso, use o painel em `/admin`: aprovação de profissionais, usuários e
+   papéis, vínculos, biblioteca de exercícios, horários, aviso no site e logs.
 
 > O usuário do banco precisa poder criar papéis (`CREATEROLE`) na primeira
 > migração — o usuário padrão do Neon, Railway, Supabase ou Docker já pode.

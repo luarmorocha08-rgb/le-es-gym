@@ -21,7 +21,7 @@ export async function signup(browser: Browser, user: TestUser, professional: boo
   return page;
 }
 
-/** Aprovação feita como um admin de teste (a tela de aprovação é da Etapa 7). */
+/** Aprovação feita como um admin de teste (atalho de teste; a tela fica em /admin/profissionais). */
 export async function approveTrainer(email: string, stamp: number) {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
@@ -39,6 +39,20 @@ export async function approveTrainer(email: string, stamp: number) {
     await client.query("select set_config('app.user_id', $1, true)", [adminId]);
     await client.query("select public.review_professional($1, 'aprovado', 'E2E')", [trainerId]);
     await client.query("commit");
+  } finally {
+    await client.end();
+  }
+}
+
+/** Promove uma conta já cadastrada a administradora (como scripts/make-admin.mjs). */
+export async function makeAdmin(email: string) {
+  const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  await client.connect();
+  try {
+    await client.query(
+      `insert into public.user_roles (user_id, role) select id, 'admin' from auth.users where email = $1 on conflict do nothing`,
+      [email],
+    );
   } finally {
     await client.end();
   }

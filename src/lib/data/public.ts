@@ -1,5 +1,7 @@
 import "server-only";
 import { getPool, withAnon } from "@/lib/db";
+import { announcementSchema } from "@/lib/validation/admin";
+import { localDate } from "@/lib/workout/progress";
 
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"] as const;
 
@@ -56,4 +58,17 @@ export function groupHoursByDay(hours: OpeningHour[]) {
         .map((h) => ({ from: h.opens_at.slice(0, 5), to: h.closes_at.slice(0, 5), note: h.note })),
     }))
     .filter((d) => d.ranges.length > 0);
+}
+
+export type PublicAnnouncement = { text: string; linkLabel: string; linkUrl: string };
+
+/** Aviso ativo cadastrado no painel (site_content "aviso"); expira no fim do dia informado. */
+export async function getAnnouncement(): Promise<PublicAnnouncement | null> {
+  const result = await publicQuery((db) => db.one<{ value: unknown }>("select value from public.site_content where key = 'aviso'"));
+  if (result.status !== "ok" || !result.data) return null;
+  const parsed = announcementSchema.safeParse(result.data.value);
+  if (!parsed.success || !parsed.data.active) return null;
+  const a = parsed.data;
+  if (a.endsAt && localDate(new Date()) > a.endsAt) return null;
+  return { text: a.text, linkLabel: a.linkLabel, linkUrl: a.linkUrl };
 }

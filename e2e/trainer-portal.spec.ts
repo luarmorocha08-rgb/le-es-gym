@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { approveTrainer, signup, uniqueTag } from "./helpers";
 
 // Jornada aluno ↔ profissional contra banco real.
-// Requer E2E_WITH_DB=1 e DATABASE_URL (para aprovar o profissional, papel do admin — Etapa 7).
+// Requer E2E_WITH_DB=1 e DATABASE_URL (para aprovar o profissional, papel do admin).
 test.skip(!process.env.E2E_WITH_DB || !process.env.DATABASE_URL, "requer banco (E2E_WITH_DB=1 e DATABASE_URL)");
 test.describe.configure({ mode: "serial" });
 test.setTimeout(90_000);

@@ -360,6 +360,40 @@ do $$ begin
 end $$;
 reset role;
 
+-- ADMINISTRAÇÃO (Etapa 7) -----------------------------------------------------
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-0000000000a1');
+do $$ begin
+  perform tests.expect_error($q$select * from public.admin_list_users()$q$, 'aluno não lista usuários');
+  perform tests.expect_error($q$select public.link_trainer_student('00000000-0000-0000-0000-0000000000f2', '00000000-0000-0000-0000-0000000000a1', true)$q$, 'aluno não cria vínculo');
+  perform tests.expect_error($q$insert into public.opening_hours (weekday, opens_at, closes_at) values (1, '06:00', '22:00')$q$, 'aluno não edita horários');
+  perform tests.expect_error($q$insert into public.site_content (key, value) values ('aviso', '{}')$q$, 'aluno não edita conteúdo');
+end $$;
+update public.exercises set name = 'Hack' where slug = 'stiff';
+do $$ begin
+  perform tests.expect_count($q$select 1 from public.exercises where name = 'Hack'$q$, 0, 'aluno não edita exercício');
+end $$;
+reset role;
+
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-00000000000a');
+do $$ begin
+  perform tests.expect_count($q$select * from public.admin_list_users()$q$, (select count(*) from public.profiles), 'admin lista usuários');
+  perform tests.expect_count($q$select * from public.admin_list_users('aluno1@teste')$q$, 1, 'admin busca por e-mail');
+  perform tests.expect_count($q$select * from public.admin_list_users(null, 'admin')$q$, 1, 'admin filtra por papel');
+  perform tests.expect_error($q$select public.review_professional('00000000-0000-0000-0000-00000000000a', 'aprovado')$q$, 'admin não revisa o próprio cadastro');
+  perform tests.expect_error($q$select public.link_trainer_student('00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000a2', true)$q$, 'não vincula a profissional suspenso');
+end $$;
+insert into public.opening_hours (weekday, opens_at, closes_at, note) values (1, '06:00', '22:00', 'Teste');
+insert into public.site_content (key, value) values ('aviso', '{"text": "Teste"}');
+update public.exercises set tips = tips where slug = 'stiff';
+do $$ begin
+  perform tests.expect_count($q$select 1 from public.audit_logs where entity in ('opening_hours', 'site_content', 'exercises') and actor_id = '00000000-0000-0000-0000-00000000000a'$q$, 3, 'alterações do admin auditadas');
+end $$;
+delete from public.opening_hours where note = 'Teste';
+delete from public.site_content where key = 'aviso';
+reset role;
+
 -- ANÔNIMO ---------------------------------------------------------------------
 set role anon;
 select tests.login(null);

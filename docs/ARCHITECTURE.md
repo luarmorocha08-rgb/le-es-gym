@@ -119,7 +119,7 @@ Arquivo: `db/migrations/0001_init_schema.sql`. As tabelas `auth.users`, `auth.se
   por ator); aceitar uma solicitação cria o vínculo.
 - `export_my_data()` exporta todos os dados do titular (LGPD art. 18).
 
-Os testes em `db/tests/rls_test.sql` exercitam 83 cenários de permissão
+Os testes em `db/tests/rls_test.sql` exercitam 94 cenários de permissão
 (aluno, aluno de outro, profissional vinculado/não vinculado/pendente/
 suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 
@@ -192,7 +192,30 @@ solicitação ligada passa para "entregue".
   simulado. Os testes e2e usam um servidor local que imita a API
   (`e2e/mock-anthropic.mjs`, `E2E_AI_MOCK=1`), que existe só nos testes.
 
-## 7. Plano de implementação
+## 7. Painel administrativo (Etapa 7)
+
+| Rota | O que faz |
+| --- | --- |
+| `/admin/dashboard` | Usuários, profissionais ativos, treinos em 7 dias, uso da IA em 24 h; cadastros aguardando aprovação; cadastros e treinos por semana; atividade recente |
+| `/admin/profissionais` | Abas por status; aprovar, rejeitar (com motivo), suspender (com motivo), reativar, reabrir análise — o profissional é notificado |
+| `/admin/usuarios` · `/[id]` | Busca por nome/e-mail e filtro por papel; detalhe com consentimentos, vínculos, indicadores, auditoria e concessão/remoção de administrador (nunca o próprio) |
+| `/admin/vinculos` | Criar e encerrar vínculos profissional ↔ aluno (os dois são notificados); origem do vínculo |
+| `/admin/exercicios` · `/novo` · `/[id]` | Cadastro e edição da biblioteca (músculos, equipamento, nível, execução, dicas, vídeo https); desativar em vez de apagar |
+| `/admin/horarios` | Faixas por dia (várias de uma vez) exibidas na landing e em Contato |
+| `/admin/conteudo` | Aviso no site (texto, link, validade) exibido em todas as páginas públicas, dispensável pelo visitante |
+| `/admin/logs` | Auditoria filtrável e paginada; uso da IA (status, tokens, latência, chamadas recentes) |
+
+- Toda escrita passa por `requireAdminId()` **e** pelo banco: funções
+  `SECURITY DEFINER` que conferem `is_admin()` (`review_professional`,
+  `set_user_role`, `link_trainer_student`, `admin_list_users`,
+  `admin_user_emails`) e políticas RLS de escrita só para admin.
+- E-mails vêm de `auth.users` apenas por funções restritas a administradores.
+  Dados de saúde dos alunos **não** são lidos no painel.
+- Alterações na biblioteca, horários e conteúdo são auditadas por trigger
+  (`audit_admin_change`); seed e scripts não poluem o log.
+- Ninguém revisa o próprio cadastro nem remove o próprio acesso de admin.
+
+## 8. Plano de implementação
 
 | Etapa | Escopo | Status |
 | --- | --- | --- |
@@ -203,5 +226,5 @@ solicitação ligada passa para "entregue".
 | 4. Portal do aluno | Navegação inferior, biblioteca, montar treino, modo treino, evolução, Meu Treinador, perfil (exportar/excluir dados) | ✅ (fotos de progresso aguardam o armazenamento de arquivos) |
 | 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | ✅ |
 | 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões, substituições, dúvidas, revisão profissional | ✅ (testado com servidor simulado; requer chave real para uso) |
-| 7. Administração | Aprovações, vínculos, exercícios/mídias, horários, conteúdos, logs | Próxima |
-| 8. Refinamento | Service worker/offline, performance, acessibilidade, testes ampliados | — |
+| 7. Administração | Aprovações, usuários e papéis, vínculos, biblioteca de exercícios, horários, aviso no site, auditoria e uso da IA | ✅ (upload de mídias aguarda armazenamento de arquivos) |
+| 8. Refinamento | Service worker/offline, performance, acessibilidade, testes ampliados | Próxima |

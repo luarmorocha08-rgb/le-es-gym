@@ -32,9 +32,11 @@ export default defineConfig({
       : undefined,
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    { name: "desktop", use: { ...devices["Desktop Chrome"] }, testIgnore: /admin-panel/ },
     // fluxo de conta roda só no desktop (cria usuários reais no banco de teste)
-    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /account-flow|student-portal|trainer-portal|ai-/ },
+    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /account-flow|student-portal|trainer-portal|ai-|admin-panel/ },
+    // altera o site público (horários e aviso): roda depois dos demais
+    { name: "admin", use: { ...devices["Desktop Chrome"] }, testMatch: /admin-panel/, dependencies: ["desktop", "mobile"] },
   ],
   webServer: process.env.E2E_BASE_URL
     ? aiMock
