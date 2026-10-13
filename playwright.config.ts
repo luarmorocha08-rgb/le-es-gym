@@ -18,7 +18,7 @@ export default defineConfig({
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     // fluxo de conta roda só no desktop (cria usuários reais no banco de teste)
-    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /account-flow|student-portal/ },
+    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /account-flow|student-portal|trainer-portal/ },
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined

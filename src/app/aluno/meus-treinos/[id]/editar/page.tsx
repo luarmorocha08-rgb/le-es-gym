@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { savePlan } from "@/app/aluno/_actions/plans";
 import { PlanEditor } from "@/components/student/plan-editor";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireArea } from "@/lib/auth/dal";
@@ -17,7 +18,7 @@ export default async function EditPlanPage({ params }: PageProps<"/aluno/meus-tr
   return (
     <div>
       <PageHeader eyebrow="Meu treino" title="Editar treino" />
-      <PlanEditor plan={plan} catalog={catalog} />
+      <PlanEditor plan={plan} catalog={catalog} save={savePlan.bind(null, plan.id)} afterSaveBase="/aluno/meus-treinos" />
     </div>
   );
 }

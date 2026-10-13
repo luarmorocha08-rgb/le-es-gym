@@ -9,7 +9,7 @@ import { getAuth } from "@/lib/auth/auth";
 import { withUser } from "@/lib/db";
 import { passwordRules } from "@/lib/validation/auth";
 import { GOALS, LEVELS } from "@/lib/workout/constants";
-import { dbErrorMessage, requireUserId } from "./common";
+import { dbErrorMessage, requireUserId } from "@/lib/action-utils";
 
 export type ProfileFormState = { ok?: boolean; message?: string; fieldErrors?: Record<string, string> };
 

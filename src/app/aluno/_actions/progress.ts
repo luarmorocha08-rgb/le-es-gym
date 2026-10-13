@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { withUser } from "@/lib/db";
-import { dbErrorMessage, requireUserId, type ActionResult } from "./common";
+import { dbErrorMessage, requireUserId, type ActionResult } from "@/lib/action-utils";
 
 const optNum = (min: number, max: number) =>
   z

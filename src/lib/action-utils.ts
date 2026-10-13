@@ -22,6 +22,19 @@ export function dbErrorMessage(error: unknown, fallback = "Não foi possível co
   }
   if (e?.code === "23505") return "Registro duplicado.";
   if (e?.code === "23514" || e?.code === "22P02") return "Dados inválidos.";
-  console.error("[aluno]", error);
+  console.error("[action]", error);
   return fallback;
+}
+
+/** Exige profissional aprovado e ativo (a RLS também exige). */
+export async function requireTrainerId() {
+  const viewer = await getViewer();
+  if (!viewer?.isActiveTrainer) throw new Error("Acesso restrito a profissionais aprovados.");
+  return viewer.id;
+}
+
+export function fieldErrorsOf(error: { issues: { path: PropertyKey[]; message: string }[] }) {
+  const out: Record<string, string> = {};
+  for (const i of error.issues) out[String(i.path[0])] ??= i.message;
+  return out;
 }

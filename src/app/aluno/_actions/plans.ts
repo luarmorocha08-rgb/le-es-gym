@@ -2,25 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { withUser, type Db } from "@/lib/db";
+import { withUser } from "@/lib/db";
+import { copyPlanStructure, insertPlanStructure } from "@/lib/workout/plan-writer";
 import { issuesByPath, planSchema, type PlanInput } from "@/lib/validation/workout";
-import { dbErrorMessage, requireUserId, type ActionResult } from "./common";
-
-async function insertStructure(db: Db, planId: string, days: ReturnType<typeof planSchema.parse>["days"]) {
-  for (const [position, day] of days.entries()) {
-    const row = await db.one<{ id: string }>(
-      "insert into public.workout_days (plan_id, position, label, name, notes) values ($1, $2, $3, $4, $5) returning id",
-      [planId, position, day.label, day.name, day.notes],
-    );
-    for (const [i, ex] of day.exercises.entries()) {
-      await db.query(
-        `insert into public.workout_exercises (day_id, exercise_id, position, sets, reps, rest_seconds, target_load_kg, notes)
-         values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [row!.id, ex.exerciseId, i, ex.sets, ex.reps, ex.restSeconds, ex.targetLoadKg, ex.notes],
-      );
-    }
-  }
-}
+import { dbErrorMessage, requireUserId, type ActionResult } from "@/lib/action-utils";
 
 /** Cria ou atualiza uma ficha montada pelo aluno (estrutura completa numa transação). */
 export async function savePlan(planId: string | null, input: PlanInput): Promise<ActionResult<{ id: string }>> {
@@ -64,7 +49,7 @@ export async function savePlan(planId: string | null, input: PlanInput): Promise
         );
         id = row!.id;
       }
-      await insertStructure(db, id, plan.days);
+      await insertPlanStructure(db, id, plan.days);
       if (plan.makeCurrent) {
         await db.query("update public.profiles set current_plan_id = $2 where id = $1", [userId, id]);
       }
@@ -133,22 +118,7 @@ export async function duplicatePlan(planId: string) {
         [planId, userId],
       );
       if (!row) throw Object.assign(new Error("Ficha não encontrada."), { code: "P0002" });
-      const days = await db.query<{ id: string; position: number; label: string; name: string; notes: string | null }>(
-        "select id, position, label, name, notes from public.workout_days where plan_id = $1 order by position",
-        [planId],
-      );
-      for (const d of days) {
-        const nd = await db.one<{ id: string }>(
-          "insert into public.workout_days (plan_id, position, label, name, notes) values ($1, $2, $3, $4, $5) returning id",
-          [row.id, d.position, d.label, d.name, d.notes],
-        );
-        await db.query(
-          `insert into public.workout_exercises (day_id, exercise_id, position, sets, reps, rest_seconds, target_load_kg, notes)
-           select $2, exercise_id, position, sets, reps, rest_seconds, target_load_kg, notes
-             from public.workout_exercises where day_id = $1`,
-          [d.id, nd!.id],
-        );
-      }
+      await copyPlanStructure(db, planId, row.id);
       return row.id;
     });
   } catch (error) {

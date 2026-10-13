@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { withUser } from "@/lib/db";
 import { GOALS } from "@/lib/workout/constants";
-import { dbErrorMessage, requireUserId, type ActionResult } from "./common";
+import { dbErrorMessage, requireUserId, type ActionResult } from "@/lib/action-utils";
 
 const requestSchema = z.object({
   trainerId: z.uuid({ error: "Escolha um profissional." }),

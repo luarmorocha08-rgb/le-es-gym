@@ -4,14 +4,15 @@ import { ArrowDown, ArrowUp, Check, GripVertical, Loader2, Plus, Search, StickyN
 import { Reorder, useDragControls } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
-import { savePlan } from "@/app/aluno/_actions/plans";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { ExerciseSummary, PlanDetail } from "@/lib/student/queries";
+import type { ActionResult } from "@/lib/action-utils";
+import type { ExerciseSummary } from "@/lib/student/queries";
+import type { PlanInput } from "@/lib/validation/workout";
 import { cn } from "@/lib/utils";
 import { GOAL_LABELS, GOALS, muscleLabel, SPLIT_LABELS, SPLIT_TYPES, type SplitType } from "@/lib/workout/constants";
 import { nextDayLabel, SPLIT_TEMPLATES } from "@/lib/workout/splits";
@@ -35,7 +36,20 @@ function newRow(exerciseId: string): Row {
   return { key: uid(), exerciseId, sets: "3", reps: "10-12", restSeconds: "60", targetLoadKg: "", notes: "", showNotes: false };
 }
 
-function fromPlan(plan: PlanDetail | null, split: SplitType): Day[] {
+/** Dados mínimos de uma ficha existente para edição (aluno ou profissional). */
+export type EditablePlan = {
+  title: string;
+  goal: string | null;
+  description: string | null;
+  split_type: string;
+  days: {
+    label: string;
+    name: string;
+    exercises: { exercise_id: string; sets: number; reps: string; rest_seconds: number; target_load_kg: number | null; notes: string | null }[];
+  }[];
+};
+
+function fromPlan(plan: EditablePlan | null, split: SplitType): Day[] {
   if (plan && plan.days.length) {
     return plan.days.map((d) => ({
       key: uid(),
@@ -56,7 +70,21 @@ function fromPlan(plan: PlanDetail | null, split: SplitType): Day[] {
   return SPLIT_TEMPLATES[split].map((t) => ({ key: uid(), label: t.label, name: t.name, rows: [] }));
 }
 
-export function PlanEditor({ plan, catalog }: { plan: PlanDetail | null; catalog: ExerciseSummary[] }) {
+export function PlanEditor({
+  plan,
+  catalog,
+  save,
+  afterSaveBase,
+  saveLabel = "Salvar treino",
+}: {
+  plan: EditablePlan | null;
+  catalog: ExerciseSummary[];
+  /** Server action já vinculada ao contexto (ficha/aluno/solicitação) */
+  save: (input: PlanInput) => Promise<ActionResult<{ id: string }>>;
+  /** Após salvar, navega para `${afterSaveBase}/${id}` */
+  afterSaveBase: string;
+  saveLabel?: string;
+}) {
   const router = useRouter();
   const [title, setTitle] = useState(plan?.title ?? "");
   const [goal, setGoal] = useState(plan?.goal ?? "");
@@ -118,11 +146,11 @@ export function PlanEditor({ plan, catalog }: { plan: PlanDetail | null; catalog
     return errors[path];
   }
 
-  function save() {
+  function submit() {
     setMessage(null);
     setErrors({});
     start(async () => {
-      const result = await savePlan(plan?.id ?? null, {
+      const result = await save({
         title,
         splitType: split,
         goal: goal ? (goal as (typeof GOALS)[number]) : null,
@@ -149,7 +177,7 @@ export function PlanEditor({ plan, catalog }: { plan: PlanDetail | null; catalog
         return;
       }
       setSaved(true);
-      router.push(`/aluno/meus-treinos/${result.data.id}`);
+      router.push(`${afterSaveBase}/${result.data.id}`);
       router.refresh();
     });
   }
@@ -327,9 +355,9 @@ export function PlanEditor({ plan, catalog }: { plan: PlanDetail | null; catalog
           <p className="text-sm text-white/55">
             {days.length} {days.length === 1 ? "dia" : "dias"} · {totalExercises} exercícios
           </p>
-          <Button type="button" onClick={save} disabled={pending || saved} size="lg">
+          <Button type="button" onClick={submit} disabled={pending || saved} size="lg">
             {pending ? <Loader2 className="animate-spin" /> : saved ? <Check /> : null}
-            {saved ? "Salvo" : "Salvar treino"}
+            {saved ? "Salvo" : saveLabel}
           </Button>
         </div>
       </div>

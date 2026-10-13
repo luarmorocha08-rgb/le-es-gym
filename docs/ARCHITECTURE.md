@@ -119,7 +119,7 @@ Arquivo: `db/migrations/0001_init_schema.sql`. As tabelas `auth.users`, `auth.se
   por ator); aceitar uma solicitação cria o vínculo.
 - `export_my_data()` exporta todos os dados do titular (LGPD art. 18).
 
-Os testes em `db/tests/rls_test.sql` exercitam 75 cenários de permissão
+Os testes em `db/tests/rls_test.sql` exercitam 83 cenários de permissão
 (aluno, aluno de outro, profissional vinculado/não vinculado/pendente/
 suspenso, admin, anônimo — incluindo o bloqueio ao schema `auth`).
 
@@ -141,7 +141,24 @@ Leituras em `src/lib/student/queries.ts` e mutações em `src/app/aluno/_actions
 sempre via `withUser` (RLS). Regras puras (divisões, sequência de dias,
 semana em America/Sao_Paulo, recordes, volume) em `src/lib/workout/` com testes.
 
-## 5. Camada de IA (Etapa 6)
+## 5. Portal do profissional (Etapa 5)
+
+| Rota | O que faz |
+| --- | --- |
+| `/profissional/dashboard` | Indicadores, o que precisa de atenção (solicitações, alunos sem treinar 7+ dias), últimas atividades com esforço/feedback, fichas publicadas por semana |
+| `/profissional/alunos` · `/[id]` | Alunos vinculados com busca e filtros; perfil com saúde declarada, fichas, frequência, cargas, recordes, histórico/feedback, metas, medidas compartilhadas, notas privadas |
+| `/profissional/criar-treino` | Ficha para aluno vinculado, a partir de solicitação ou como modelo; editor com arrastar-e-soltar |
+| `/profissional/fichas` · `/[id]` · `/[id]/editar` | Rascunhos, publicadas, modelos e arquivadas; publicação explícita com nota; nova versão; comparação com a versão publicada; histórico de versões; duplicar para outro aluno; salvar como modelo |
+| `/profissional/solicitacoes` · `/[id]` | Central por status; aceitar (cria vínculo), montar ficha, mensagens, concluir |
+| `/profissional/acompanhamento` | Treinos em 4 semanas, aderência à meta, última atividade, esforço médio, volume e último feedback |
+| `/profissional/perfil` | CREF, apresentação, especialidades, perfil público e disponibilidade |
+
+**Fluxo de versões:** ficha publicada é imutável. "Nova versão" cria um rascunho
+(`based_on_plan_id`) que o aluno não vê; ao publicar, a anterior é arquivada, a
+nova vira o treino atual do aluno, a numeração continua (v1 → v2) e a
+solicitação ligada passa para "entregue".
+
+## 6. Camada de IA (Etapa 6)
 
 - `src/lib/ai/` **server-only**; chave em `ANTHROPIC_API_KEY` (ou outro
   provedor via `AI_PROVIDER`), modelo em `AI_MODEL`.
@@ -157,7 +174,7 @@ semana em America/Sao_Paulo, recordes, volume) em `src/lib/workout/` com testes.
 - Guardrails no prompt e na validação: sem diagnóstico, sem promessa de
   resultado; dor/lesão/condição de saúde → orientar avaliação profissional.
 
-## 6. Plano de implementação
+## 7. Plano de implementação
 
 | Etapa | Escopo | Status |
 | --- | --- | --- |
@@ -166,7 +183,7 @@ semana em America/Sao_Paulo, recordes, volume) em `src/lib/workout/` com testes.
 | 3. Autenticação | Better Auth, login/cadastro/recuperação, proxy, DAL, papéis | ✅ (testado ponta a ponta com Postgres local) |
 | — Banco | Schema completo + RLS + funções + seed + testes + scripts de migração | ✅ |
 | 4. Portal do aluno | Navegação inferior, biblioteca, montar treino, modo treino, evolução, Meu Treinador, perfil (exportar/excluir dados) | ✅ (fotos de progresso aguardam o armazenamento de arquivos) |
-| 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | Próxima |
-| 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões | — |
+| 5. Portal profissional | Meus alunos, editor drag-and-drop, solicitações, acompanhamento | ✅ |
+| 6. IA | Gerador conversacional (aluno e profissional), ajustes, comparação de versões | Próxima |
 | 7. Administração | Aprovações, vínculos, exercícios/mídias, horários, conteúdos, logs | — |
 | 8. Refinamento | Service worker/offline, performance, acessibilidade, testes ampliados | — |

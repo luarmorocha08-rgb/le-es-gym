@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { withUser } from "@/lib/db";
 import { finishSessionSchema, setLogSchema } from "@/lib/validation/workout";
-import { dbErrorMessage, requireUserId, type ActionResult } from "./common";
+import { dbErrorMessage, requireUserId, type ActionResult } from "@/lib/action-utils";
 
 /** Inicia (ou retoma) o treino de um dia da ficha e abre o modo treino. */
 export async function startSession(planId: string, dayId: string) {

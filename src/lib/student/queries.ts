@@ -67,6 +67,45 @@ export type PlanDetail = Omit<PlanSummary, "day_count" | "exercise_count"> & {
 
 const num = (v: unknown) => (v === null || v === undefined ? null : Number(v));
 
+/** Dias e exercícios de uma ficha (respeita a RLS da transação recebida). */
+export async function loadPlanDays(db: Db, planId: string): Promise<PlanDay[]> {
+  const rows = await db.query<Record<string, unknown>>(
+    `select d.id, d.position, d.label, d.name, d.notes,
+            we.id as we_id, we.exercise_id, we.position as we_position, we.sets, we.reps, we.rest_seconds,
+            we.target_load_kg, we.notes as we_notes, e.name as ex_name, e.slug, e.primary_muscles, e.equipment
+       from public.workout_days d
+       left join public.workout_exercises we on we.day_id = d.id
+       left join public.exercises e on e.id = we.exercise_id
+      where d.plan_id = $1
+      order by d.position, we.position`,
+    [planId],
+  );
+  const days = new Map<string, PlanDay>();
+  for (const r of rows) {
+    const id = r.id as string;
+    if (!days.has(id)) {
+      days.set(id, { id, position: r.position as number, label: r.label as string, name: r.name as string, notes: r.notes as string | null, exercises: [] });
+    }
+    if (r.we_id) {
+      days.get(id)!.exercises.push({
+        id: r.we_id as string,
+        exercise_id: r.exercise_id as string,
+        position: r.we_position as number,
+        sets: r.sets as number,
+        reps: r.reps as string,
+        rest_seconds: r.rest_seconds as number,
+        target_load_kg: num(r.target_load_kg),
+        notes: r.we_notes as string | null,
+        name: r.ex_name as string,
+        slug: r.slug as string,
+        primary_muscles: r.primary_muscles as string[],
+        equipment: r.equipment as string,
+      });
+    }
+  }
+  return [...days.values()];
+}
+
 // ---------------------------------------------------------------------------
 // Exercícios
 // ---------------------------------------------------------------------------
@@ -162,47 +201,11 @@ async function loadPlan(db: Db, userId: string, planId: string): Promise<PlanDet
   );
   if (!plan) return null;
 
-  const rows = await db.query<
-    Omit<PlanDay, "exercises"> & { we_id: string | null } & Partial<Omit<PlanExercise, "id">> & { target_load_kg: string | null }
-  >(
-    `select d.id, d.position, d.label, d.name, d.notes,
-            we.id as we_id, we.exercise_id, we.position as we_position, we.sets, we.reps, we.rest_seconds,
-            we.target_load_kg, we.notes as we_notes, e.name as ex_name, e.slug, e.primary_muscles, e.equipment
-       from public.workout_days d
-       left join public.workout_exercises we on we.day_id = d.id
-       left join public.exercises e on e.id = we.exercise_id
-      where d.plan_id = $1
-      order by d.position, we.position`,
-    [planId],
-  );
-
-  const days = new Map<string, PlanDay>();
-  for (const r of rows as unknown as Record<string, unknown>[]) {
-    const id = r.id as string;
-    if (!days.has(id)) {
-      days.set(id, { id, position: r.position as number, label: r.label as string, name: r.name as string, notes: r.notes as string | null, exercises: [] });
-    }
-    if (r.we_id) {
-      days.get(id)!.exercises.push({
-        id: r.we_id as string,
-        exercise_id: r.exercise_id as string,
-        position: r.we_position as number,
-        sets: r.sets as number,
-        reps: r.reps as string,
-        rest_seconds: r.rest_seconds as number,
-        target_load_kg: num(r.target_load_kg),
-        notes: r.we_notes as string | null,
-        name: r.ex_name as string,
-        slug: r.slug as string,
-        primary_muscles: r.primary_muscles as string[],
-        equipment: r.equipment as string,
-      });
-    }
-  }
+  const days = await loadPlanDays(db, planId);
 
   return {
     ...plan,
-    days: [...days.values()],
+    days,
     // Só o próprio aluno edita fichas que ele montou (ou sugestões de IA dele)
     can_edit: plan.author_id === userId && plan.source !== "profissional" && plan.status !== "publicado",
   };

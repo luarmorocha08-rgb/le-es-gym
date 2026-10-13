@@ -295,6 +295,42 @@ do $$ begin
 end $$;
 reset role;
 
+-- PROFISSIONAL 1: ficha publicada é imutável; mudanças viram nova versão ----
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-0000000000f1');
+do $$ declare _n int; begin
+  update public.workout_exercises set sets = 9 where day_id = '33333333-3333-3333-3333-333333333333';
+  get diagnostics _n = row_count;
+  if _n <> 0 then raise exception 'FALHA: profissional alterou ficha publicada'; end if;
+  raise notice 'OK: ficha publicada não é editável nem pelo autor';
+  perform tests.expect_error($q$select public.publish_workout_plan('22222222-2222-2222-2222-222222222222')$q$, 'republicar ficha já publicada');
+end $$;
+insert into public.workout_plans (id, student_id, author_id, source, title, split_type, based_on_plan_id)
+values ('66666666-6666-6666-6666-666666666666', '00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000f1', 'profissional', 'Hipertrofia — Fase 1', 'ABC', '22222222-2222-2222-2222-222222222222');
+insert into public.workout_days (id, plan_id, position, label, name)
+values ('77777777-7777-7777-7777-777777777777', '66666666-6666-6666-6666-666666666666', 0, 'A', 'Peito e tríceps');
+insert into public.workout_exercises (day_id, exercise_id, position, sets, reps)
+select '77777777-7777-7777-7777-777777777777', id, 0, 5, '6-8' from public.exercises where slug = 'supino-reto-barra';
+do $$ begin
+  perform tests.expect_count($q$select 1 from public.workout_plans where id = '66666666-6666-6666-6666-666666666666'$q$, 1, 'profissional vê o rascunho da nova versão');
+  if (public.get_plan_snapshot('22222222-2222-2222-2222-222222222222') -> 'days' -> 0 -> 'exercises' -> 0 ->> 'sets')::int <> 4 then
+    raise exception 'FALHA: snapshot da versão publicada';
+  end if;
+  raise notice 'OK: snapshot da versão publicada para comparação';
+  perform tests.expect_error($q$update public.workout_plans set based_on_plan_id = null where id = '66666666-6666-6666-6666-666666666666'$q$, 'alterar origem da versão');
+end $$;
+select public.publish_workout_plan('66666666-6666-6666-6666-666666666666', 'Mais volume');
+reset role;
+
+set role authenticated;
+select tests.login('00000000-0000-0000-0000-0000000000a1');
+do $$ begin
+  perform tests.expect_count($q$select 1 from public.workout_plans where status = 'publicado' and id = '66666666-6666-6666-6666-666666666666' and current_version = 2$q$, 1, 'nova versão publicada (v2)');
+  perform tests.expect_count($q$select 1 from public.workout_plans where id = '22222222-2222-2222-2222-222222222222' and status = 'arquivado'$q$, 1, 'versão anterior arquivada');
+  perform tests.expect_count($q$select 1 from public.profiles where id = '00000000-0000-0000-0000-0000000000a1' and current_plan_id = '66666666-6666-6666-6666-666666666666'$q$, 1, 'publicação vira o treino atual do aluno');
+end $$;
+reset role;
+
 -- ADMIN suspende profissional 1 → perde acesso --------------------------------
 set role authenticated;
 select tests.login('00000000-0000-0000-0000-00000000000a');
