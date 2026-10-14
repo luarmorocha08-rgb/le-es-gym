@@ -10,9 +10,20 @@ export class AiError extends Error {
   constructor(
     public code: AiErrorCode,
     message: string,
+    /** Diagnóstico técnico para o log (status e tipo do erro da API; nunca a chave) */
+    public detail?: string,
   ) {
     super(message);
   }
+}
+
+/** "401 authentication_error: invalid x-api-key" — vai para ai_generations.error_message */
+function apiErrorDetail(error: InstanceType<typeof Anthropic.APIError>) {
+  const body = error.error as { error?: { type?: string; message?: string } } | undefined;
+  return [error.status ?? "", body?.error?.type ? `${body.error.type}:` : "", body?.error?.message ?? error.message]
+    .join(" ")
+    .trim()
+    .slice(0, 300);
 }
 
 declare global {
@@ -21,7 +32,15 @@ declare global {
 
 function getClient() {
   if (!isAiConfigured()) throw new AiError("not_configured", "A inteligência artificial ainda não foi configurada.");
-  globalThis.__leoesAnthropic ??= new Anthropic({ timeout: 120_000, maxRetries: 2 });
+  // espaços ou quebra de linha colados junto com a chave invalidam o cabeçalho
+  // chaves de usuário (sem workspace) exigem o cabeçalho anthropic-workspace-id
+  const workspace = process.env.ANTHROPIC_WORKSPACE_ID?.trim();
+  globalThis.__leoesAnthropic ??= new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY?.trim(),
+    timeout: 120_000,
+    maxRetries: 2,
+    ...(workspace ? { defaultHeaders: { "anthropic-workspace-id": workspace } } : {}),
+  });
   return globalThis.__leoesAnthropic;
 }
 
@@ -77,17 +96,21 @@ export async function callStructured<S extends z.ZodType>({
   } catch (error) {
     if (error instanceof AiError) throw error;
     if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
-      throw new AiError("auth", "A chave da IA é inválida ou sem permissão. Avise a administração.");
+      throw new AiError("auth", "A chave da IA é inválida ou sem permissão. Avise a administração.", apiErrorDetail(error));
     }
     if (error instanceof Anthropic.RateLimitError) {
-      throw new AiError("rate_limited", "A IA está com muita demanda agora. Tente de novo em instantes.");
+      throw new AiError("rate_limited", "A IA está com muita demanda agora. Tente de novo em instantes.", apiErrorDetail(error));
     }
     if (error instanceof Anthropic.BadRequestError) {
       console.error("[ai] requisição inválida", error.message);
-      throw new AiError("invalid", "Não foi possível processar o pedido na IA.");
+      throw new AiError("invalid", "Não foi possível processar o pedido na IA.", apiErrorDetail(error));
     }
     if (error instanceof Anthropic.APIConnectionError || error instanceof Anthropic.InternalServerError || error instanceof Anthropic.APIError) {
-      throw new AiError("unavailable", "A IA está indisponível no momento. Tente novamente em alguns minutos.");
+      throw new AiError(
+        "unavailable",
+        "A IA está indisponível no momento. Tente novamente em alguns minutos.",
+        apiErrorDetail(error),
+      );
     }
     // Erro de validação do schema (saída fora do formato)
     console.error("[ai] falha inesperada", error);

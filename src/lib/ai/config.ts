@@ -15,7 +15,7 @@ export function aiConfig() {
 
 /** Sem chave do provedor, nada é gerado nem simulado. */
 export function isAiConfigured() {
-  return aiConfig().provider === "anthropic" && Boolean(process.env.ANTHROPIC_API_KEY);
+  return aiConfig().provider === "anthropic" && Boolean(process.env.ANTHROPIC_API_KEY?.trim());
 }
 
 /** Modelos com fallback de recusa no servidor (`fallbacks: "default"`). */

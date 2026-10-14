@@ -121,8 +121,9 @@ async function run<T, R>(
     const generationId = await log({ ...meta, output: result, status: "sucesso", model: res.model, inputTokens: res.inputTokens, outputTokens: res.outputTokens, latencyMs: Date.now() - started });
     return { generationId, result };
   } catch (error) {
-    if (error instanceof AiError && error.code !== "invalid") {
-      await log({ ...meta, status: error.code === "refusal" ? "bloqueado" : "erro", error: error.code, latencyMs: Date.now() - started }).catch(() => {});
+    if (error instanceof AiError && (error.code !== "invalid" || error.detail)) {
+      const reason = error.detail ? `${error.code}: ${error.detail}` : error.code;
+      await log({ ...meta, status: error.code === "refusal" ? "bloqueado" : "erro", error: reason, latencyMs: Date.now() - started }).catch(() => {});
     }
     throw error;
   }
