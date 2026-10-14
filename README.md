@@ -74,6 +74,8 @@ recuperação de senha mostra "não configurada" em produção.
 
 1. Crie uma conta em <https://console.anthropic.com/>, adicione créditos e gere
    uma chave em *API Keys* → `ANTHROPIC_API_KEY`.
+   Se a chave não pertencer a um workspace, informe também
+   `ANTHROPIC_WORKSPACE_ID` (o ID `wrkspc_…` em *Settings → Workspaces*).
 2. Opcional: `AI_MODEL` (padrão `claude-opus-5-5`), `AI_EFFORT`
    (`low` · `medium` · `high`; padrão `medium` — menor = mais rápido e barato) e
    `AI_DAILY_LIMIT_PER_USER` (padrão 10 usos por pessoa a cada 24 h).

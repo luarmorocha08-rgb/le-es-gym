@@ -33,7 +33,14 @@ declare global {
 function getClient() {
   if (!isAiConfigured()) throw new AiError("not_configured", "A inteligência artificial ainda não foi configurada.");
   // espaços ou quebra de linha colados junto com a chave invalidam o cabeçalho
-  globalThis.__leoesAnthropic ??= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY?.trim(), timeout: 120_000, maxRetries: 2 });
+  // chaves de usuário (sem workspace) exigem o cabeçalho anthropic-workspace-id
+  const workspace = process.env.ANTHROPIC_WORKSPACE_ID?.trim();
+  globalThis.__leoesAnthropic ??= new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY?.trim(),
+    timeout: 120_000,
+    maxRetries: 2,
+    ...(workspace ? { defaultHeaders: { "anthropic-workspace-id": workspace } } : {}),
+  });
   return globalThis.__leoesAnthropic;
 }
 
