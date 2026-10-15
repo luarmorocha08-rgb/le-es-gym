@@ -2,7 +2,7 @@ import { ArrowUpRight, Baby, CalendarDays, Dumbbell, MapPin, Users } from "lucid
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { Reveal, Parallax, TextReveal } from "@/components/motion/reveal";
-import { gym, fullAddress, mapsEmbedUrl, mapsUrl, media } from "@/content/gym";
+import { gym, fullAddress, mapsEmbedUrl, mapsUrl } from "@/content/gym";
 import { OpeningHours } from "./opening-hours";
 
 const features: { icon: ReactNode; title: string; text: string; href?: string }[] = [
@@ -29,7 +29,7 @@ const features: { icon: ReactNode; title: string; text: string; href?: string }[
   },
 ];
 
-export function AcademySection() {
+export function AcademySection({ gallery }: { gallery: { src: string; alt: string }[] }) {
   return (
     <section id="academia" aria-labelledby="academia-title" className="relative scroll-mt-20 py-28 sm:py-40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
@@ -95,11 +95,11 @@ export function AcademySection() {
           })}
         </Reveal>
 
-        {media.gallery.length > 0 && (
+        {gallery.length > 0 && (
           <div className="mt-24 grid grid-cols-2 gap-4 lg:grid-cols-3" aria-label="Galeria da academia">
-            {media.gallery.map((img, i) => (
+            {gallery.map((img, i) => (
               <Parallax key={img.src} speed={i % 2 ? 0.08 : 0.16} className="overflow-hidden rounded-2xl">
-                {/* eslint-disable-next-line @next/next/no-img-element -- mídias locais da academia */}
+                {/* eslint-disable-next-line @next/next/no-img-element -- mídias da própria academia */}
                 <img src={img.src} alt={img.alt} className="aspect-[4/5] w-full object-cover grayscale" loading="lazy" />
               </Parallax>
             ))}

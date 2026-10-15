@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Scene3D } from "@/components/three/scene-3d";
-import { gym, media } from "@/content/gym";
+import { gym } from "@/content/gym";
 import { gsap, SplitText, useGSAP } from "@/lib/gsap";
 
-export function Hero() {
+export function Hero({ video, poster }: { video: string | null; poster: string | null }) {
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -55,11 +55,11 @@ export function Hero() {
     >
       {/* Fundo cinematográfico */}
       <div data-hero-bg className="absolute inset-0 -z-20">
-        {media.heroVideo ? (
+        {video ? (
           <video
             className="h-full w-full object-cover opacity-60 grayscale"
-            src={media.heroVideo}
-            poster={media.heroPoster ?? undefined}
+            src={video}
+            poster={poster ?? undefined}
             autoPlay
             muted
             loop

@@ -199,6 +199,7 @@ export type AdminExercise = {
   instructions: string[];
   tips: string[];
   video_url: string | null;
+  media_path: string | null;
   is_active: boolean;
   usage: number;
   updated_at: string;
@@ -208,7 +209,7 @@ export function listExercisesAdmin(adminId: string, params: { search?: string; s
   return withUser(adminId, (db) =>
     db.query<AdminExercise>(
       `select e.id, e.slug, e.name, e.primary_muscles, e.secondary_muscles, e.equipment, e.mechanics, e.level::text,
-              e.instructions, e.tips, e.video_url, e.is_active, e.updated_at,
+              e.instructions, e.tips, e.video_url, e.media_path, e.is_active, e.updated_at,
               (select count(*)::int from public.workout_exercises we where we.exercise_id = e.id) as usage
          from public.exercises e
         where ($1::text is null or e.name ilike '%' || $1 || '%' or e.slug ilike '%' || $1 || '%')
@@ -223,7 +224,7 @@ export function getExerciseAdmin(adminId: string, id: string) {
   return withUser(adminId, (db) =>
     db.one<AdminExercise>(
       `select e.id, e.slug, e.name, e.primary_muscles, e.secondary_muscles, e.equipment, e.mechanics, e.level::text,
-              e.instructions, e.tips, e.video_url, e.is_active, e.updated_at,
+              e.instructions, e.tips, e.video_url, e.media_path, e.is_active, e.updated_at,
               (select count(*)::int from public.workout_exercises we where we.exercise_id = e.id) as usage
          from public.exercises e where e.id = $1`,
       [id],

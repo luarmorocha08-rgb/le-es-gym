@@ -3,8 +3,9 @@ import { AcademySection } from "@/components/landing/academy-section";
 import { FinalCta } from "@/components/landing/final-cta";
 import { PageHero } from "@/components/layout/page-hero";
 import { gym } from "@/content/gym";
+import { getLandingMedia } from "@/lib/data/public";
 
-/** Horários e equipe vêm do banco; revalida a cada 5 minutos. */
+/** Horários, equipe e fotos vêm do banco; revalida a cada 5 minutos. */
 export const revalidate = 300;
 
 export const metadata: Metadata = {
@@ -12,13 +13,14 @@ export const metadata: Metadata = {
   description: `Conheça a ${gym.name}: estrutura, aulas, Espaço Kids, localização e horários.`,
 };
 
-export default function AcademyPage() {
+export default async function AcademyPage() {
+  const { gallery } = await getLandingMedia();
   return (
     <>
       <PageHero eyebrow="A academia" title={<>A casa dos <span className="text-metal">leões.</span></>}>
         {gym.pillars.join(" · ")}.
       </PageHero>
-      <AcademySection />
+      <AcademySection gallery={gallery} />
       <FinalCta />
     </>
   );

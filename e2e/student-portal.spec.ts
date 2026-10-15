@@ -191,13 +191,20 @@ test("exporta os dados em JSON", async () => {
 
 test("exclui a conta com senha e confirmação", async () => {
   await page.goto("/aluno/perfil");
-  await page.getByText("Excluir minha conta").click();
+  // no fim da página (tela de celular) o alvo pode ficar sob a barra fixa do
+  // rodapé: aciona pelo teclado, como faria quem navega sem mouse. Se a página
+  // ainda estiver hidratando, o <details> pode voltar fechado — tenta de novo.
+  const summary = page.getByText("Excluir minha conta");
+  await expect(async () => {
+    if (!(await summary.evaluate((el) => (el.parentElement as HTMLDetailsElement).open))) await summary.press("Enter");
+    await expect(page.getByLabel("Sua senha")).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
   await page.getByLabel("Sua senha").fill(user.password);
   await page.getByLabel('Digite "EXCLUIR"').fill("excluir");
-  await page.getByRole("button", { name: "Excluir conta permanentemente" }).click();
+  await page.getByRole("button", { name: "Excluir conta permanentemente" }).press("Enter");
   await expect(page.getByText("Digite EXCLUIR para confirmar.")).toBeVisible();
   await page.getByLabel('Digite "EXCLUIR"').fill("EXCLUIR");
-  await page.getByRole("button", { name: "Excluir conta permanentemente" }).click();
+  await page.getByRole("button", { name: "Excluir conta permanentemente" }).press("Enter");
   await expect(page).toHaveURL(/\/\?conta=excluida/);
   await page.goto("/login");
   await page.getByLabel("E-mail").fill(user.email);

@@ -24,6 +24,8 @@ jobs:
       E2E_WITH_DB: "1"
       # fluxos de IA contra um servidor local que imita a API (sem chave real)
       E2E_AI_MOCK: "1"
+      # envio de fotos/vídeos contra um servidor local que imita o Vercel Blob
+      E2E_BLOB_MOCK: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

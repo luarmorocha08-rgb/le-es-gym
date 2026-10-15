@@ -4,11 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExerciseActiveButton } from "@/components/admin/controls";
 import { ExerciseForm } from "@/components/admin/exercise-form";
+import { ExerciseImageControl } from "@/components/admin/media-manager";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { getExerciseAdmin, listExercisesAdmin } from "@/lib/admin/queries";
 import { requireArea } from "@/lib/auth/dal";
+import { isMediaConfigured } from "@/lib/media/config";
 
 export const metadata: Metadata = { title: "Editar exercício" };
 
@@ -45,6 +47,7 @@ export default async function EditExercisePage({ params, searchParams }: PagePro
       {exercise.usage > 0 && (
         <Alert className="mb-6">Alterações aparecem nas fichas que já usam este exercício (nome e instruções são compartilhados).</Alert>
       )}
+      <ExerciseImageControl exerciseId={exercise.id} name={exercise.name} current={exercise.media_path} configured={isMediaConfigured()} />
       <ExerciseForm exercise={exercise} equipment={equipment} />
     </div>
   );
