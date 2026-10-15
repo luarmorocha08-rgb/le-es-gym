@@ -87,11 +87,20 @@ custos. O aluno precisa autorizar o uso da IA antes do primeiro envio.
 
 ### 3. Mídias da academia (opcional, recomendado)
 
-Coloque vídeo e fotos **da própria academia** em `public/media/` e informe os
-caminhos em `src/content/gym.ts` (`media.heroVideo`, `media.heroPoster`,
-`media.gallery`). Enquanto vazios, a landing usa a cena 3D procedural — sem
-imagens genéricas. Se houver o arquivo vetorial oficial do logotipo, ele pode
-substituir o emblema em `src/components/brand/emblem.tsx`.
+Fotos e vídeos **da própria academia** são enviados pelo painel
+(*Administração → Conteúdo*: vídeo de fundo, imagem de capa e galeria; e
+*Exercícios → editar*: imagem demonstrativa). Os arquivos vão direto do
+navegador para o **Vercel Blob** — crie um Blob Store público em
+*Storage* no projeto da Vercel; a variável `BLOB_READ_WRITE_TOKEN` é criada
+automaticamente. Só administradores recebem permissão de envio, com tipo,
+tamanho e pasta limitados (imagens até 8 MB, vídeo MP4/WebM até 80 MB), e
+arquivos substituídos ou removidos são apagados do armazenamento.
+
+Sem armazenamento configurado, o painel mostra "configuração pendente" e o site
+usa só o que estiver em `public/media/` + `src/content/gym.ts`. Enquanto não
+houver mídias, a landing usa a cena 3D procedural — sem imagens genéricas. Se
+houver o arquivo vetorial oficial do logotipo, ele pode substituir o emblema em
+`src/components/brand/emblem.tsx`.
 
 ## Segurança
 

@@ -76,7 +76,16 @@ export default async function ExercisePage({ params }: PageProps<"/aluno/exercic
         </div>
 
         <aside className="space-y-4">
-          <ExerciseTile muscles={exercise.primary_muscles} className="aspect-[4/3] w-full" />
+          {exercise.media_path?.startsWith("https://") ? (
+            // eslint-disable-next-line @next/next/no-img-element -- imagem enviada pela academia
+            <img
+              src={exercise.media_path}
+              alt={`Demonstração do exercício ${exercise.name}`}
+              className="aspect-[4/3] w-full rounded-2xl border border-white/10 object-cover"
+            />
+          ) : (
+            <ExerciseTile muscles={exercise.primary_muscles} className="aspect-[4/3] w-full" />
+          )}
           {exercise.video_url && (
             <a
               href={exercise.video_url}

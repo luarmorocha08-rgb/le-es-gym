@@ -39,8 +39,8 @@ export const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQu
 export const mapsEmbedUrl = `https://maps.google.com/maps?q=${mapsQuery}&z=16&output=embed`;
 
 /**
- * Mídias próprias da academia. Coloque os arquivos em /public/media e
- * informe os caminhos aqui (ou envie pelo painel admin quando disponível).
+ * Mídias próprias da academia em /public/media. O que for enviado pelo painel
+ * (Administração → Conteúdo) tem prioridade sobre estes valores.
  * Enquanto vazios, a landing usa a cena 3D procedural — nunca imagens
  * genéricas sem relação com a academia.
  */

@@ -2,9 +2,12 @@ import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AnnouncementForm } from "@/components/admin/controls";
+import { GalleryManager, HeroMediaControl } from "@/components/admin/media-manager";
 import { PageHeader } from "@/components/ui/page-header";
 import { getContentAdmin } from "@/lib/admin/queries";
 import { requireArea } from "@/lib/auth/dal";
+import { getSiteMedia } from "@/lib/data/public";
+import { isMediaConfigured } from "@/lib/media/config";
 import { announcementSchema } from "@/lib/validation/admin";
 
 export const metadata: Metadata = { title: "Conteúdo" };
@@ -16,11 +19,13 @@ export default async function AdminContentPage() {
   const row = await getContentAdmin(viewer.id, "aviso");
   const parsed = row ? announcementSchema.safeParse(row.value) : null;
   const initial = parsed?.success ? parsed.data : null;
+  const mediaReady = isMediaConfigured();
+  const media = await getSiteMedia();
 
   return (
     <div className="max-w-3xl space-y-8">
       <PageHeader eyebrow="Administração" title="Conteúdo do site">
-        Comunicados rápidos para quem visita o site — feriados, mudanças de horário, novidades.
+        Avisos rápidos, fotos e vídeos para quem visita o site.
       </PageHeader>
 
       <section aria-labelledby="aviso" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
@@ -41,13 +46,37 @@ export default async function AdminContentPage() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-dashed border-white/15 p-5 text-sm text-white/60">
-        <h2 className="eyebrow mb-2">Fotos e vídeos da academia</h2>
-        <p>
-          O envio de mídias pelo painel depende de um serviço de armazenamento de arquivos, que ainda não foi configurado. Por enquanto,
-          as mídias são adicionadas em <code className="text-white/80">public/media</code> e informadas em{" "}
-          <code className="text-white/80">src/content/gym.ts</code>.
-        </p>
+      <section aria-labelledby="midias" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
+        <h2 id="midias" className="eyebrow mb-2">
+          Fotos e vídeos da academia
+        </h2>
+        {mediaReady ? (
+          <>
+            <p className="mb-5 text-sm text-white/60">
+              Use apenas fotos e vídeos da própria academia. Tudo aparece no site em preto e branco, como o resto da identidade.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <HeroMediaControl
+                kind="heroVideo"
+                title="Vídeo de fundo"
+                description="Toca sem som no topo da página inicial. Prefira 10–20 s, horizontal."
+                current={media.heroVideo?.url ?? null}
+              />
+              <HeroMediaControl
+                kind="heroPoster"
+                title="Imagem de capa"
+                description="Aparece enquanto o vídeo carrega e para quem economiza dados. Horizontal, de preferência um quadro do próprio vídeo."
+                current={media.heroPoster?.url ?? null}
+              />
+            </div>
+            <h3 className="mb-3 mt-8 font-semibold text-white">Galeria da página inicial</h3>
+            <GalleryManager items={media.gallery} />
+          </>
+        ) : (
+          <p className="text-sm text-white/60">
+            Configuração pendente: o armazenamento de arquivos ainda não foi configurado (variável BLOB_READ_WRITE_TOKEN).
+          </p>
+        )}
       </section>
     </div>
   );
