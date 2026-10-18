@@ -2,7 +2,7 @@
 
 import { Activity, Bell, BrainCircuit, CalendarCheck2, Home, Play, Sparkles, TrendingUp, User } from "lucide-react";
 import { useRef, useState } from "react";
-import { LionHead } from "@/components/brand/emblem";
+import { RevoMark } from "@/components/brand/emblem";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,7 @@ const demoBars = [42, 55, 48, 63, 70, 66, 78];
 function TodayScreen() {
   return (
     <div className="space-y-3">
-      <div className="rounded-2xl bg-white p-4 text-black">
+      <div className="rounded-2xl bg-[linear-gradient(135deg,#3ee6ff,#8a7dff)] p-4 text-black">
         <p className="font-heading text-[0.6rem] uppercase tracking-[0.2em] text-black/60">Treino B · Costas e bíceps</p>
         <p className="mt-1 font-display text-2xl uppercase leading-none">Pronto para mais uma conquista?</p>
         <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 font-heading text-[0.65rem] uppercase tracking-[0.18em] text-white">
@@ -33,7 +33,7 @@ function TodayScreen() {
           {["S", "T", "Q", "Q", "S", "S", "D"].map((d, i) => (
             <div key={i} className="flex flex-col items-center gap-1.5">
               <span className="text-[0.6rem] text-white/55">{d}</span>
-              <span className={cn("size-6 rounded-full border", demoWeek[i] ? "border-white bg-white" : "border-white/20")} />
+              <span className={cn("size-6 rounded-full border", demoWeek[i] ? "border-accent bg-accent" : "border-white/20")} />
             </div>
           ))}
         </div>
@@ -74,7 +74,7 @@ function ProgressScreen() {
       <div className="rounded-xl border border-white/10 px-3.5 py-3 text-[0.72rem] text-white/75">
         Meta: completar 16 treinos no mês
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-          <div className="h-full w-3/4 rounded-full bg-white" />
+          <div className="h-full w-3/4 rounded-full bg-gradient-to-r from-accent to-accent-2" />
         </div>
       </div>
     </div>
@@ -91,7 +91,7 @@ function AiScreen() {
         Entendido. Alguma limitação física ou exercício que prefira evitar?
       </div>
       <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-black/40 p-3.5">
-        <LionHead className="size-8 animate-pulse text-white" />
+        <RevoMark className="size-8 animate-pulse text-accent" />
         <div>
           <p className="font-heading text-[0.6rem] uppercase tracking-[0.2em] text-white">Estruturando sua rotina…</p>
           <p className="text-[0.6rem] text-white/55">Sugestão — sujeita a revisão profissional</p>
@@ -201,7 +201,7 @@ export function ExperiencePreview() {
                 <div className="flex items-center justify-between px-5 pb-3 pt-12">
                   <div>
                     <p className="text-[0.6rem] uppercase tracking-[0.2em] text-white/55">Boa tarde,</p>
-                    <p className="font-display text-xl uppercase leading-tight">Leão</p>
+                    <p className="font-display text-xl uppercase leading-tight">Atleta</p>
                   </div>
                   <span className="grid size-8 place-items-center rounded-full border border-white/15">
                     <Bell className="size-3.5" />

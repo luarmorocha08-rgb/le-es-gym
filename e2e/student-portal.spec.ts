@@ -145,7 +145,7 @@ test("perfil: dados de saúde só com consentimento; medidas liberadas depois", 
   await page.getByLabel(/Limitações físicas/).fill("Desconforto leve no joelho esquerdo");
   await page.getByRole("button", { name: "Salvar informações de saúde" }).click();
   await expect(page.getByText("Para salvar dados de saúde é preciso autorizar o tratamento.")).toBeVisible();
-  await page.getByRole("checkbox", { name: /Autorizo a LEÕES GYM C5 a tratar/ }).check();
+  await page.getByRole("checkbox", { name: /Autorizo a REVO TRAIN a tratar/ }).check();
   await page.getByRole("button", { name: "Salvar informações de saúde" }).click();
   await expect(page.getByText("Informações de saúde salvas.")).toBeVisible();
 

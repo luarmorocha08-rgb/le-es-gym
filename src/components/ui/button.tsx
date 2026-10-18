@@ -9,12 +9,12 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-white text-black hover:bg-[#e6e7e9] shadow-[0_0_0_1px_rgba(255,255,255,0.4),0_10px_40px_-10px_rgba(255,255,255,0.45)]",
+          "bg-accent text-black hover:bg-[#8ff1ff] shadow-[0_0_0_1px_rgba(62,230,255,0.5),0_10px_40px_-10px_rgba(62,230,255,0.6)]",
         outline:
-          "border border-white/30 bg-white/[0.02] text-white hover:border-white hover:bg-white/[0.08]",
+          "border border-white/25 bg-white/[0.02] text-white hover:border-accent hover:bg-accent/[0.08] hover:text-white",
         ghost: "text-white/80 hover:bg-white/[0.06] hover:text-white",
         metal:
-          "text-black bg-[linear-gradient(110deg,#b9bcc1,#ffffff_35%,#8f9399_60%,#e9eaec)] bg-[length:200%_100%] hover:bg-[position:100%_0] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.35)]",
+          "text-black bg-[linear-gradient(110deg,#3ee6ff,#e9fcff_35%,#8a7dff_65%,#3ee6ff)] bg-[length:200%_100%] hover:bg-[position:100%_0] shadow-[0_8px_30px_-8px_rgba(62,230,255,0.5)]",
         danger: "border border-[var(--color-danger)]/40 text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10",
       },
       size: {

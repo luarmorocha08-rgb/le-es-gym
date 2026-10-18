@@ -1,18 +1,18 @@
 /**
- * Informações institucionais da LEÕES GYM C5.
- * Fonte: perfil oficial @leoesgymc5 no Instagram. Conteúdos editáveis pelo
- * painel administrativo (tabela site_content) sobrescrevem estes valores
- * quando configurados.
+ * Informações institucionais da REVO TRAIN.
+ * Endereço e redes sociais: substituir pelos dados oficiais da unidade antes
+ * da publicação. Conteúdos editáveis pelo painel administrativo (tabela
+ * site_content) sobrescrevem estes valores quando configurados.
  */
 export const gym = {
-  name: "LEÕES GYM C5",
-  shortName: "Leões Gym",
-  slogan: "SE VOCÊ QUER SER UM LEÃO, DEVE TREINAR COM OS LEÕES.",
-  tagline: "A academia da família",
+  name: "REVO TRAIN",
+  shortName: "Revo Train",
+  slogan: "TECNOLOGIA QUE MOVE A SUA EVOLUÇÃO.",
+  tagline: "Treino inteligente, resultado real",
   pillars: [
-    "Estrutura de grandes redes",
-    "Atendimento de academia de bairro",
-    "Experiência de academia premium",
+    "Estrutura completa de treino",
+    "Acompanhamento próximo e humano",
+    "Tecnologia e IA a favor da sua evolução",
   ],
   address: {
     street: "Av. Dr. Pedro Lessa, 1890",

@@ -4,7 +4,7 @@ import { BookCopy, ClipboardCheck } from "lucide-react";
 import { useState, useTransition } from "react";
 import { adjustForStudent, generateForStudent, saveAiDraft } from "@/app/profissional/_actions/ai";
 import type { SuggestionPayload } from "@/app/aluno/_actions/ai";
-import { LionHead } from "@/components/brand/emblem";
+import { RevoMark } from "@/components/brand/emblem";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -187,7 +187,7 @@ export function TrainerAssistant({ studentId, studentName, defaults }: { student
       </div>
       {error && <Alert tone="error">{error}</Alert>}
       <Button type="submit" size="lg" disabled={pending || !form.goal || !form.level}>
-        <LionHead className="size-5" /> Gerar sugestão de treino com IA
+        <RevoMark className="size-5" /> Gerar sugestão de treino com IA
       </Button>
     </form>
   );

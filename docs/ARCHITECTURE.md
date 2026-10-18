@@ -1,4 +1,4 @@
-# LEÕES GYM C5 — Arquitetura
+# REVO TRAIN — Arquitetura
 
 Plataforma web com quatro ambientes (landing pública, portal do aluno, portal do
 profissional e painel administrativo) sobre Next.js + PostgreSQL, com login
@@ -230,7 +230,7 @@ solicitação ligada passa para "entregue".
   públicas e dos três portais; contraste mínimo 4,5:1 no texto secundário,
   abas com `tabpanel`, gráficos com pontos focáveis rotulados.
 - **Desempenho:** cena 3D só com WebGL, sem movimento reduzido e fora de
-  economia de dados/aparelhos com pouca memória (emblema estático no lugar).
+  economia de dados/aparelhos com pouca memória (símbolo estático no lugar).
 - **Segurança:** limite de tentativas no Postgres para as Server Actions de
   autenticação (o limitador do Better Auth só cobre `/api/auth/*`, que agora
   também guarda contadores no banco); HSTS e COOP em produção.

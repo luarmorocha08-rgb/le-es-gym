@@ -235,7 +235,7 @@ export function PlanEditor({
               onClick={() => chooseSplit(s)}
               className={cn(
                 "rounded-full border px-4 py-2 font-heading text-xs uppercase tracking-[0.14em] transition",
-                s === split ? "border-white bg-white text-black" : "border-white/15 text-white/70 hover:border-white/40",
+                s === split ? "border-accent bg-accent text-black" : "border-white/15 text-white/70 hover:border-white/40",
               )}
             >
               {SPLIT_LABELS[s]}
@@ -260,7 +260,7 @@ export function PlanEditor({
               onClick={() => setActive(i)}
               className={cn(
                 "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-left transition",
-                i === active ? "border-white bg-white/10" : "border-white/10 hover:border-white/30",
+                i === active ? "border-accent bg-accent/10" : "border-white/10 hover:border-white/30",
                 hasError && "border-[var(--color-danger)]/70",
               )}
             >

@@ -72,7 +72,7 @@ export function StudentBottomNav() {
                   active ? "text-white" : "text-white/55",
                 )}
               >
-                <span className={cn("grid h-7 w-12 place-items-center rounded-full transition", active && "bg-white text-black")}>
+                <span className={cn("grid h-7 w-12 place-items-center rounded-full transition", active && "bg-accent text-black")}>
                   <item.icon className="size-[1.1rem]" aria-hidden />
                 </span>
                 {item.label}

@@ -61,7 +61,7 @@ async function TrainerList() {
 export default function TeamPage() {
   return (
     <>
-      <PageHero eyebrow="Equipe" title={<>Quem treina <span className="text-white/55">os leões.</span></>}>
+      <PageHero eyebrow="Equipe" title={<>Quem move a sua <span className="text-metal">evolução.</span></>}>
         Profissionais de educação física prontos para montar e acompanhar o seu treino.
       </PageHero>
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-10">

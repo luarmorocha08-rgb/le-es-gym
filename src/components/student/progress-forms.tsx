@@ -47,7 +47,7 @@ export function GoalItem({ goal }: { goal: { id: string; title: string; target_v
         disabled={pending}
         aria-pressed={done}
         aria-label={done ? `Reabrir meta ${goal.title}` : `Marcar meta ${goal.title} como concluída`}
-        className={cn("grid size-8 shrink-0 place-items-center rounded-full border transition", done ? "border-white bg-white text-black" : "border-white/30 hover:border-white")}
+        className={cn("grid size-8 shrink-0 place-items-center rounded-full border transition", done ? "border-accent bg-accent text-black" : "border-white/30 hover:border-white")}
       >
         {done && <Check className="size-4" />}
       </button>

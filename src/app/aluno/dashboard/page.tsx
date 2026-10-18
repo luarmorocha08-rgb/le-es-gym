@@ -49,7 +49,7 @@ export default async function StudentDashboard() {
       </div>
 
       {/* Card principal */}
-      <section className="grain relative overflow-hidden rounded-3xl bg-white p-6 text-black sm:p-8" aria-labelledby="treino-do-dia">
+      <section className="grain relative overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#3ee6ff,#8a7dff)] p-6 text-black sm:p-8" aria-labelledby="treino-do-dia">
         <div className="pointer-events-none absolute -right-10 -top-10 size-56 rounded-full bg-[radial-gradient(circle,rgba(0,0,0,0.08),transparent_70%)]" />
         {open ? (
           <>
@@ -137,7 +137,7 @@ export default async function StudentDashboard() {
                   <span className={`text-[0.65rem] ${isToday ? "text-white" : "text-white/55"}`}>{WEEK_LETTERS[i]}</span>
                   <span
                     className={`grid aspect-square w-full max-w-11 place-items-center rounded-full border text-xs ${
-                      done ? "border-white bg-white text-black" : isToday ? "border-white/70" : "border-white/15 text-white/55"
+                      done ? "border-accent bg-accent text-black" : isToday ? "border-white/70" : "border-white/15 text-white/55"
                     }`}
                     aria-label={`${shortDate.format(new Date(`${d}T00:00:00Z`))}${done ? ": treinou" : ""}${isToday ? " (hoje)" : ""}`}
                   >

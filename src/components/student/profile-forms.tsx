@@ -122,7 +122,7 @@ export function HealthForm({ profile }: { profile: StudentProfile }) {
         <label className="flex gap-3 rounded-xl border border-white/10 p-4 text-sm text-white/75">
           <Checkbox name="consent" defaultChecked={consented} aria-invalid={state.fieldErrors?.consent ? true : undefined} />
           <span>
-            Autorizo a LEÕES GYM C5 a tratar estas informações de saúde (dado sensível, LGPD art. 11) para orientar meus
+            Autorizo a REVO TRAIN a tratar estas informações de saúde (dado sensível, LGPD art. 11) para orientar meus
             treinos. Elas ficam visíveis apenas para mim e para profissionais vinculados a mim. Posso revogar quando quiser.
             {state.fieldErrors?.consent && <span className="mt-1 block text-xs text-[var(--color-danger)]">{state.fieldErrors.consent}</span>}
           </span>

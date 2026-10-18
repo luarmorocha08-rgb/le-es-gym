@@ -1,8 +1,8 @@
-# LEÕES GYM C5 — Smart Fitness Experience
+# REVO TRAIN — Smart Training Experience
 
-> "SE VOCÊ QUER SER UM LEÃO, DEVE TREINAR COM OS LEÕES."
+> "TECNOLOGIA QUE MOVE A SUA EVOLUÇÃO."
 
-Plataforma da academia LEÕES GYM C5 (Santos/SP): site cinematográfico, portal do
+Plataforma da academia REVO TRAIN (Santos/SP): site cinematográfico, portal do
 aluno, portal do profissional e painel administrativo, com Postgres e IA.
 
 - Arquitetura, modelo de dados e plano por etapas: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
@@ -99,7 +99,7 @@ arquivos substituídos ou removidos são apagados do armazenamento.
 Sem armazenamento configurado, o painel mostra "configuração pendente" e o site
 usa só o que estiver em `public/media/` + `src/content/gym.ts`. Enquanto não
 houver mídias, a landing usa a cena 3D procedural — sem imagens genéricas. Se
-houver o arquivo vetorial oficial do logotipo, ele pode substituir o emblema em
+houver o arquivo vetorial oficial do logotipo, ele pode substituir o símbolo em
 `src/components/brand/emblem.tsx`.
 
 ## Segurança

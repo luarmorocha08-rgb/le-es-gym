@@ -15,7 +15,7 @@ export type CatalogItem = {
  * Regras fixas (prefixo estável → cacheável). Textos livres do usuário entram
  * apenas na mensagem do usuário, delimitados e tratados como dados.
  */
-export const SYSTEM_RULES = `Você é o assistente de treino da academia LEÕES GYM C5 (Santos/SP).
+export const SYSTEM_RULES = `Você é o assistente de treino da academia REVO TRAIN (Santos/SP).
 Sua função é sugerir rotinas de musculação estruturadas. Regras obrigatórias:
 
 1. Você produz SUGESTÕES, não prescrições. Não diagnostique, não trate condições de saúde e não prometa resultados (peso, prazo, medidas).

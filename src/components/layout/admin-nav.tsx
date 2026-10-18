@@ -37,7 +37,7 @@ export function AdminNav({ pending }: { pending: number }) {
               <item.icon className="size-3.5" aria-hidden />
               {item.label}
               {item.href === "/admin/profissionais" && pending > 0 && (
-                <span className="rounded-full bg-white px-1.5 text-[0.6rem] font-bold text-black" aria-label={`${pending} aguardando aprovação`}>
+                <span className="rounded-full bg-accent px-1.5 text-[0.6rem] font-bold text-black" aria-label={`${pending} aguardando aprovação`}>
                   {pending}
                 </span>
               )}

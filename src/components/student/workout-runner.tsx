@@ -91,7 +91,7 @@ export function WorkoutRunner({ session }: { session: SessionDetail }) {
           </div>
         </div>
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-label="Progresso do treino" aria-valuemin={0} aria-valuemax={planned} aria-valuenow={done}>
-          <motion.div className="h-full rounded-full bg-white" animate={{ width: `${progress * 100}%` }} transition={{ type: "spring", stiffness: 120, damping: 20 }} />
+          <motion.div className="h-full rounded-full bg-accent" animate={{ width: `${progress * 100}%` }} transition={{ type: "spring", stiffness: 120, damping: 20 }} />
         </div>
       </div>
 
@@ -425,7 +425,7 @@ function RestTimer({ rest, onClose, onExtend }: { rest: { total: number; endsAt:
             </div>
             <p className={cn("mt-2 text-center font-display text-7xl tabular-nums", finished && "text-metal")}>{formatClock(remaining)}</p>
             <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full bg-white transition-[width] duration-300" style={{ width: `${(1 - remaining / rest.total) * 100}%` }} />
+              <div className="h-full bg-accent transition-[width] duration-300" style={{ width: `${(1 - remaining / rest.total) * 100}%` }} />
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Button variant="outline" size="lg" onClick={() => onExtend(15)}>
@@ -541,7 +541,7 @@ function FinishDialog({
                 type="button"
                 aria-pressed={effort === n}
                 onClick={() => setEffort(effort === n ? null : n)}
-                className={cn("h-11 rounded-lg border font-display text-lg", effort === n ? "border-white bg-white text-black" : "border-white/15 text-white/70")}
+                className={cn("h-11 rounded-lg border font-display text-lg", effort === n ? "border-accent bg-accent text-black" : "border-white/15 text-white/70")}
               >
                 {n}
               </button>

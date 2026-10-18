@@ -45,7 +45,7 @@ export default async function PlanPage({ params }: PageProps<"/aluno/meus-treino
       <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="flex flex-wrap gap-2">
-            {plan.is_current && <Badge className="border-white bg-white text-black">Treino atual</Badge>}
+            {plan.is_current && <Badge className="border-accent bg-accent text-black">Treino atual</Badge>}
             <Badge>{PLAN_SOURCE_LABELS[plan.source]}</Badge>
             <Badge>{PLAN_STATUS_LABELS[plan.status] ?? plan.status}</Badge>
             <Badge>{SPLIT_LABELS[plan.split_type as SplitType]}</Badge>

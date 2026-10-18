@@ -5,13 +5,13 @@ import { Scene3D } from "@/components/three/scene-3d";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 
 const chapters = [
-  { word: "Disciplina", text: "Constância vence motivação. Cada treino registrado é um passo que não volta atrás." },
-  { word: "Força", text: "Progressão inteligente de cargas, com técnica e acompanhamento de quem entende." },
-  { word: "Comunidade", text: "Ninguém treina sozinho aqui. Leões evoluem em bando." },
+  { word: "Precisão", text: "Cada série registrada vira dado. Cada dado vira uma decisão melhor no próximo treino." },
+  { word: "Evolução", text: "Progressão de cargas guiada pelo seu histórico, com técnica e acompanhamento de quem entende." },
+  { word: "Conexão", text: "A tecnologia conecta. As pessoas transformam. Ninguém evolui sozinho aqui." },
 ];
 
-/** Seção sticky: o medalhão metálico gira com o scroll enquanto os capítulos se alternam. */
-export function ShieldStory() {
+/** Seção sticky: o núcleo 3D gira com o scroll enquanto os capítulos se alternam. */
+export function RevoStory() {
   const root = useRef<HTMLElement>(null);
   const progress = useRef(0);
 
@@ -58,7 +58,7 @@ export function ShieldStory() {
     <section
       ref={root}
       aria-label="Nossos valores"
-      className="relative h-[320svh] bg-[radial-gradient(ellipse_60%_40%_at_50%_50%,#15171a,#000_70%)] motion-reduce:h-auto"
+      className="relative h-[320svh] bg-[radial-gradient(ellipse_60%_40%_at_50%_50%,#0d1622,#05070b_70%)] motion-reduce:h-auto"
     >
       <div className="sticky top-0 flex h-svh items-center overflow-hidden motion-reduce:static motion-reduce:h-auto motion-reduce:py-24">
         <div className="absolute inset-0 m-auto aspect-square max-h-[92svh] w-full max-w-[920px] opacity-60 motion-reduce:relative motion-reduce:hidden">
@@ -72,7 +72,7 @@ export function ShieldStory() {
               data-chapter
               className="col-start-1 row-start-1 flex flex-col items-center text-center motion-reduce:row-auto motion-reduce:mb-16"
             >
-              <span className="eyebrow mb-4">0{i + 1} / 03</span>
+              <span className="eyebrow mb-4 text-accent">0{i + 1} / 03</span>
               <h2 className="font-display text-[clamp(4rem,17vw,15rem)] uppercase leading-none text-white drop-shadow-[0_10px_50px_rgba(0,0,0,0.95)]">
                 {c.word}
               </h2>
@@ -82,7 +82,7 @@ export function ShieldStory() {
         </div>
 
         <div className="absolute inset-x-4 bottom-8 mx-auto h-px max-w-xs bg-white/10 sm:inset-x-0 motion-reduce:hidden">
-          <div data-story-bar className="h-full origin-left bg-white" />
+          <div data-story-bar className="h-full origin-left bg-gradient-to-r from-accent to-accent-2" />
         </div>
       </div>
     </section>

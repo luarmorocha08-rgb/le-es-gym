@@ -3,9 +3,9 @@ import { expect, test } from "@playwright/test";
 test.describe("Landing page", () => {
   test("exibe o hero com a mensagem principal e os três botões", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Desperte o leão/i);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/em você/i);
-    await expect(page.getByText("Seu treino. Sua evolução. Sua força.")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Revolucione/i);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/o seu treino/i);
+    await expect(page.getByText("Dados. Inteligência. Evolução.")).toBeVisible();
     await expect(page.getByRole("link", { name: /Sou aluno/i })).toHaveAttribute("href", "/login?perfil=aluno");
     await expect(page.getByRole("link", { name: /Sou profissional/i })).toHaveAttribute(
       "href",

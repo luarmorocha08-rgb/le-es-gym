@@ -49,7 +49,7 @@ export async function loadViewer(db: Db, id: string, email: string | null): Prom
   return {
     id,
     email,
-    fullName: row?.full_name ?? "Leão",
+    fullName: row?.full_name ?? "Atleta",
     roles,
     professionalStatus,
     isActiveTrainer,

@@ -60,7 +60,7 @@ export default async function TrainerRequestsPage({ searchParams }: PageProps<"/
             aria-current={t.id === tab.id ? "page" : undefined}
             className={cn(
               "shrink-0 rounded-full border px-4 py-2 font-heading text-xs uppercase tracking-[0.14em]",
-              t.id === tab.id ? "border-white bg-white text-black" : "border-white/15 text-white/65 hover:border-white/40",
+              t.id === tab.id ? "border-accent bg-accent text-black" : "border-white/15 text-white/65 hover:border-white/40",
             )}
           >
             {t.label} <span className="opacity-60">{counts[t.id]}</span>

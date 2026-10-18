@@ -43,7 +43,7 @@ export function SiteHeader() {
       )}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:h-[72px] lg:px-10">
-        <Link href="/" aria-label="LEÕES GYM C5 — início" className="shrink-0" onClick={() => setOpen(false)}>
+        <Link href="/" aria-label="REVO TRAIN — início" className="shrink-0" onClick={() => setOpen(false)}>
           <Wordmark />
         </Link>
 
