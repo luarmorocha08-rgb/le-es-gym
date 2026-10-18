@@ -27,7 +27,7 @@ function apiErrorDetail(error: InstanceType<typeof Anthropic.APIError>) {
 }
 
 declare global {
-  var __leoesAnthropic: Anthropic | undefined;
+  var __revoAnthropic: Anthropic | undefined;
 }
 
 function getClient() {
@@ -35,13 +35,13 @@ function getClient() {
   // espaços ou quebra de linha colados junto com a chave invalidam o cabeçalho
   // chaves de usuário (sem workspace) exigem o cabeçalho anthropic-workspace-id
   const workspace = process.env.ANTHROPIC_WORKSPACE_ID?.trim();
-  globalThis.__leoesAnthropic ??= new Anthropic({
+  globalThis.__revoAnthropic ??= new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY?.trim(),
     timeout: 120_000,
     maxRetries: 2,
     ...(workspace ? { defaultHeaders: { "anthropic-workspace-id": workspace } } : {}),
   });
-  return globalThis.__leoesAnthropic;
+  return globalThis.__revoAnthropic;
 }
 
 export type ModelCall<T> = { output: T; model: string; inputTokens: number; outputTokens: number };

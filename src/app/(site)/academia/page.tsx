@@ -17,7 +17,7 @@ export default async function AcademyPage() {
   const { gallery } = await getLandingMedia();
   return (
     <>
-      <PageHero eyebrow="A academia" title={<>A casa dos <span className="text-metal">leões.</span></>}>
+      <PageHero eyebrow="A academia" title={<>Onde o treino <span className="text-metal">evolui.</span></>}>
         {gym.pillars.join(" · ")}.
       </PageHero>
       <AcademySection gallery={gallery} />

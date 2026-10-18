@@ -41,7 +41,7 @@ export default async function AdminLogsPage({ searchParams }: PageProps<"/admin/
           key={t.key}
           href={`/admin/logs?aba=${t.key}`}
           aria-current={t.key === tab ? "page" : undefined}
-          className={cn("rounded-full border px-4 py-2 text-sm", t.key === tab ? "border-white bg-white text-black" : "border-white/15 text-white/70 hover:border-white/40")}
+          className={cn("rounded-full border px-4 py-2 text-sm", t.key === tab ? "border-accent bg-accent text-black" : "border-white/15 text-white/70 hover:border-white/40")}
         >
           {t.label}
         </Link>

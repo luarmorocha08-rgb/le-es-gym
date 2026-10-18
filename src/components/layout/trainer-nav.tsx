@@ -36,7 +36,7 @@ export function TrainerTopNav({ pending }: { pending: number }) {
               <item.icon className="size-3.5" aria-hidden />
               {item.label}
               {item.href === "/profissional/solicitacoes" && pending > 0 && (
-                <span className="rounded-full bg-white px-1.5 text-[0.6rem] font-bold text-black" aria-label={`${pending} pendentes`}>
+                <span className="rounded-full bg-accent px-1.5 text-[0.6rem] font-bold text-black" aria-label={`${pending} pendentes`}>
                   {pending}
                 </span>
               )}
@@ -62,7 +62,7 @@ export function TrainerBottomNav({ pending }: { pending: number }) {
                 aria-current={on ? "page" : undefined}
                 className={cn("relative flex h-16 flex-col items-center justify-center gap-1 text-[0.6rem] font-medium uppercase tracking-[0.06em]", on ? "text-white" : "text-white/55")}
               >
-                <span className={cn("grid h-7 w-12 place-items-center rounded-full", on && "bg-white text-black")}>
+                <span className={cn("grid h-7 w-12 place-items-center rounded-full", on && "bg-accent text-black")}>
                   <item.icon className="size-[1.1rem]" aria-hidden />
                 </span>
                 {item.label}

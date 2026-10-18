@@ -31,7 +31,7 @@ export default async function RequestPage({ params }: PageProps<"/aluno/solicita
         <ArrowLeft className="size-4" /> Meu Treinador
       </Link>
       <div>
-        <Badge className={request.status === "entregue" ? "border-white bg-white text-black" : ""}>{REQUEST_STATUS_LABELS[request.status]}</Badge>
+        <Badge className={request.status === "entregue" ? "border-accent bg-accent text-black" : ""}>{REQUEST_STATUS_LABELS[request.status]}</Badge>
         <h1 className="mt-3 font-display text-5xl uppercase leading-[0.95]">{request.trainer_name ?? "Profissional"}</h1>
         <p className="mt-2 text-white/60">
           {GOAL_LABELS[request.goal as Goal]} · {request.days_per_week} dias/semana · {request.session_minutes} min por treino
@@ -57,7 +57,7 @@ export default async function RequestPage({ params }: PageProps<"/aluno/solicita
       )}
 
       {request.plan_id && (
-        <div className="flex flex-col gap-4 rounded-2xl bg-white p-5 text-black sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-2xl bg-[linear-gradient(135deg,#3ee6ff,#8a7dff)] p-5 text-black sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <Dumbbell className="size-6" />
             <div>

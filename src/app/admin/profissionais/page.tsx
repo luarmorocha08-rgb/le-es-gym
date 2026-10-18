@@ -43,7 +43,7 @@ export default async function AdminProfessionalsPage({ searchParams }: PageProps
             aria-current={t.status === status ? "page" : undefined}
             className={cn(
               "shrink-0 rounded-full border px-4 py-2 text-sm transition",
-              t.status === status ? "border-white bg-white text-black" : "border-white/15 text-white/70 hover:border-white/40",
+              t.status === status ? "border-accent bg-accent text-black" : "border-white/15 text-white/70 hover:border-white/40",
             )}
           >
             {t.label} ({counts[t.status] ?? 0})

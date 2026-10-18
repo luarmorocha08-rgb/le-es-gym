@@ -55,8 +55,8 @@ test.describe("Autenticação e proteção de rotas", () => {
 
 test.describe("Páginas públicas", () => {
   for (const [path, heading] of [
-    ["/academia", /A casa dos/i],
-    ["/equipe", /Quem treina/i],
+    ["/academia", /Onde o treino/i],
+    ["/equipe", /Quem move/i],
     ["/contato", /Vem treinar/i],
     ["/privacidade", /Seus dados/i],
   ] as const) {

@@ -53,7 +53,7 @@ export default async function AdminContentPage() {
         {mediaReady ? (
           <>
             <p className="mb-5 text-sm text-white/60">
-              Use apenas fotos e vídeos da própria academia. Tudo aparece no site em preto e branco, como o resto da identidade.
+              Use apenas fotos e vídeos da própria academia. Tudo aparece no site em preto e branco, com os acentos da identidade.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <HeroMediaControl

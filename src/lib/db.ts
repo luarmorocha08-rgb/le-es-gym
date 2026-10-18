@@ -17,8 +17,8 @@ const appTypes = {
 };
 
 declare global {
-  var __leoesPool: Pool | undefined;
-  var __leoesAuthPool: Pool | undefined;
+  var __revoPool: Pool | undefined;
+  var __revoAuthPool: Pool | undefined;
 }
 
 function createPool(url: string, custom: boolean) {
@@ -34,16 +34,16 @@ function createPool(url: string, custom: boolean) {
 export function getPool(): Pool | null {
   const url = getDatabaseUrl();
   if (!url) return null;
-  globalThis.__leoesPool ??= createPool(url, true);
-  return globalThis.__leoesPool;
+  globalThis.__revoPool ??= createPool(url, true);
+  return globalThis.__revoPool;
 }
 
 /** Pool usado pelo Better Auth (schema auth), com parsers padrão do pg. */
 export function getAuthPool(): Pool | null {
   const url = getDatabaseUrl();
   if (!url) return null;
-  globalThis.__leoesAuthPool ??= createPool(url, false);
-  return globalThis.__leoesAuthPool;
+  globalThis.__revoAuthPool ??= createPool(url, false);
+  return globalThis.__revoAuthPool;
 }
 
 export type Db = {

@@ -68,16 +68,16 @@ export function Hero({ video, poster }: { video: string | null; poster: string |
             aria-hidden
           />
         ) : (
-          <div className="h-full w-full bg-[radial-gradient(ellipse_70%_55%_at_70%_10%,rgba(255,255,255,0.18),transparent_60%),radial-gradient(ellipse_60%_50%_at_10%_100%,rgba(119,123,130,0.25),transparent_70%),linear-gradient(180deg,#0b0b0c,#000_70%)]" />
+          <div className="h-full w-full bg-[radial-gradient(ellipse_70%_55%_at_70%_10%,rgba(62,230,255,0.16),transparent_60%),radial-gradient(ellipse_60%_50%_at_10%_100%,rgba(138,125,255,0.22),transparent_70%),linear-gradient(180deg,#081019,#05070b_70%)]" />
         )}
         {/* feixes de luz */}
-        <div className="absolute -top-1/4 left-[58%] h-[140%] w-40 rotate-[18deg] bg-gradient-to-b from-white/20 via-white/[0.04] to-transparent blur-2xl" />
-        <div className="absolute -top-1/4 left-[72%] h-[140%] w-16 rotate-[18deg] bg-gradient-to-b from-white/15 via-white/[0.03] to-transparent blur-xl" />
+        <div className="absolute -top-1/4 left-[58%] h-[140%] w-40 rotate-[18deg] bg-gradient-to-b from-accent/25 via-accent/[0.04] to-transparent blur-2xl" />
+        <div className="absolute -top-1/4 left-[72%] h-[140%] w-16 rotate-[18deg] bg-gradient-to-b from-accent-2/25 via-accent-2/[0.04] to-transparent blur-xl" />
         {/* piso em perspectiva */}
         <div className="absolute inset-x-0 bottom-0 h-[45%] [perspective:600px]">
-          <div className="absolute inset-0 origin-bottom [transform:rotateX(62deg)] bg-[linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(to_top,black,transparent_85%)]" />
+          <div className="absolute inset-0 origin-bottom [transform:rotateX(62deg)] bg-[linear-gradient(rgba(62,230,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(62,230,255,0.12)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(to_top,black,transparent_85%)]" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/60" />
       </div>
 
       {/* Cena 3D */}
@@ -90,7 +90,7 @@ export function Hero({ video, poster }: { video: string | null; poster: string |
 
       <div data-hero-content className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10">
         <p data-hero-fade className="eyebrow mb-6 flex items-center gap-3">
-          <span className="h-px w-10 bg-white/40" />
+          <span className="h-px w-10 bg-accent/70" />
           {gym.name} · Santos/SP
         </p>
         <h1
@@ -98,12 +98,13 @@ export function Hero({ video, poster }: { video: string | null; poster: string |
           data-hero-title
           className="font-display text-[clamp(3.4rem,12.5vw,11.5rem)] uppercase leading-[0.98] tracking-[0.005em] [perspective:800px]"
         >
-          <span className="line block">Desperte o leão</span>
-          <span className="line block text-metal">que existe</span>
-          <span className="line block">em você.</span>
+          {/* espaços entre as linhas: o nome acessível fica "Revolucione o seu treino." */}
+          <span className="line block">Revolucione</span>{" "}
+          <span className="line block text-metal">o seu</span>{" "}
+          <span className="line block">treino.</span>
         </h1>
         <p data-hero-fade className="mt-6 max-w-md font-heading text-lg uppercase tracking-[0.16em] text-white/70 sm:text-xl">
-          Seu treino. Sua evolução. Sua força.
+          Dados. Inteligência. Evolução.
         </p>
         <div data-hero-fade className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button asChild size="lg">
@@ -129,7 +130,7 @@ export function Hero({ video, poster }: { video: string | null; poster: string |
       >
         Role para explorar
         <span className="relative h-10 w-px overflow-hidden bg-white/15">
-          <span className="absolute inset-x-0 top-0 h-1/2 animate-[marquee-y_1.8s_ease-in-out_infinite] bg-white" />
+          <span className="absolute inset-x-0 top-0 h-1/2 animate-[marquee-y_1.8s_ease-in-out_infinite] bg-accent" />
         </span>
       </div>
     </section>

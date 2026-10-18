@@ -38,7 +38,7 @@ export function NewRequestForm({
                 key={t.user_id}
                 className={cn(
                   "flex cursor-pointer gap-3 rounded-2xl border p-4 transition",
-                  trainer === t.user_id ? "border-white bg-white/[0.07]" : "border-white/10 hover:border-white/30",
+                  trainer === t.user_id ? "border-accent bg-accent/[0.07]" : "border-white/10 hover:border-white/30",
                   disabled && "cursor-not-allowed opacity-50",
                 )}
               >

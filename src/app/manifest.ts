@@ -4,16 +4,16 @@ import { gym } from "@/content/gym";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: `${gym.name} — Smart Fitness`,
+    name: `${gym.name} — Smart Training`,
     short_name: gym.shortName,
-    description: "Seu treino. Sua evolução. Sua força.",
+    description: "Dados. Inteligência. Evolução.",
     lang: "pt-BR",
     start_url: "/aluno/dashboard",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#000000",
-    theme_color: "#000000",
+    background_color: "#05070b",
+    theme_color: "#05070b",
     categories: ["health", "fitness", "sports"],
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

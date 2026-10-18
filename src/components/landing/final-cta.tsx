@@ -7,7 +7,7 @@ import { gym } from "@/content/gym";
 export function FinalCta() {
   return (
     <section aria-labelledby="cta-title" className="grain relative overflow-hidden border-t border-white/10 py-32 sm:py-48">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-full bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(255,255,255,0.12),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-full bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(62,230,255,0.14),transparent_70%)]" />
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-10">
         <TextReveal>
           <h2 id="cta-title" className="font-display text-[clamp(3.2rem,13vw,13rem)] uppercase leading-[0.85]">

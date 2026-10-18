@@ -45,7 +45,7 @@ export default async function MyTrainerPage() {
                       {r.trainer_messages > 0 && ` · ${r.trainer_messages} mensagem(ns) do profissional`}
                     </p>
                   </div>
-                  <Badge className={r.status === "entregue" ? "border-white bg-white text-black" : ""}>{REQUEST_STATUS_LABELS[r.status]}</Badge>
+                  <Badge className={r.status === "entregue" ? "border-accent bg-accent text-black" : ""}>{REQUEST_STATUS_LABELS[r.status]}</Badge>
                   <ChevronRight className="size-4 text-white/55" />
                 </Link>
               </li>

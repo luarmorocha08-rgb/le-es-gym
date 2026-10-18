@@ -9,7 +9,7 @@ import { isAuthConfigured, isEmailConfigured, siteUrl } from "@/lib/env";
 function createAuth() {
   const emailEnabled = isEmailConfigured();
   return betterAuth({
-    appName: "LEÕES GYM C5",
+    appName: "REVO TRAIN",
     baseURL: siteUrl(),
     secret: process.env.BETTER_AUTH_SECRET,
     // Tabelas de login no schema "auth" (sem acesso para os papéis de usuário)
@@ -68,12 +68,12 @@ function createAuth() {
 type Auth = ReturnType<typeof createAuth>;
 
 declare global {
-  var __leoesAuth: Auth | undefined;
+  var __revoAuth: Auth | undefined;
 }
 
 /** Instância do Better Auth, ou null se banco/segredo não estiverem configurados. */
 export function getAuth(): Auth | null {
   if (!isAuthConfigured()) return null;
-  globalThis.__leoesAuth ??= createAuth();
-  return globalThis.__leoesAuth;
+  globalThis.__revoAuth ??= createAuth();
+  return globalThis.__revoAuth;
 }

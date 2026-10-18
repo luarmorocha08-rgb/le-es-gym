@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { adjustMine, generateForMe, saveSuggestion, sendForReview, type SuggestionPayload } from "@/app/aluno/_actions/ai";
 import { setAiConsent } from "@/app/aluno/_actions/profile";
-import { LionHead } from "@/components/brand/emblem";
+import { RevoMark } from "@/components/brand/emblem";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -94,7 +94,7 @@ function Bubble({ from, children }: { from: "ia" | "aluno"; children: React.Reac
     >
       {from === "ia" && (
         <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[0.04]" aria-hidden>
-          <LionHead className="size-5 text-white" />
+          <RevoMark className="size-5 text-white" />
         </span>
       )}
       <div
@@ -117,7 +117,7 @@ function Chip({ active, onClick, children }: { active?: boolean; onClick: () => 
       onClick={onClick}
       className={cn(
         "rounded-full border px-4 py-2 text-sm transition",
-        active ? "border-white bg-white text-black" : "border-white/15 text-white/80 hover:border-white/50",
+        active ? "border-accent bg-accent text-black" : "border-white/15 text-white/80 hover:border-white/50",
       )}
     >
       {children}
@@ -355,7 +355,7 @@ export function StudentAssistant({
           {error && <Alert tone="error">{error}</Alert>}
           <div className="flex flex-wrap gap-3">
             <Button size="lg" onClick={generate} disabled={pending || !answers.goal || !answers.level || !answers.daysPerWeek || !answers.sessionMinutes}>
-              <LionHead className="size-5" /> Gerar meu treino
+              <RevoMark className="size-5" /> Gerar meu treino
             </Button>
             <Button variant="ghost" size="lg" onClick={() => setStep(0)}>
               <PencilLine /> Editar respostas

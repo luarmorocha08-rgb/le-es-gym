@@ -18,7 +18,7 @@ export function NotificationsList({ items, compact = false }: { items: N[]; comp
       <div className="flex items-center justify-between gap-3">
         <h2 id="notificacoes" className="eyebrow flex items-center gap-2">
           <Bell className="size-3.5" aria-hidden /> Notificações
-          {unread.length > 0 && <span className="rounded-full bg-white px-1.5 text-[0.6rem] font-bold text-black">{unread.length}</span>}
+          {unread.length > 0 && <span className="rounded-full bg-accent px-1.5 text-[0.6rem] font-bold text-black">{unread.length}</span>}
         </h2>
         {unread.length > 0 && (
           <Button variant="ghost" size="sm" disabled={pending} onClick={() => start(async () => void (await markNotificationsRead()))}>
